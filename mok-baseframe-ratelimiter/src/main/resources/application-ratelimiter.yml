@@ -1,0 +1,22 @@
+# 限流模块默认配置
+mok:
+  ratelimiter:
+    enabled: true                          # 是否启用限流模块
+    redis-key-prefix: "rate:limit:"        # Redis限流Key前缀
+    duplicate-key-prefix: "duplicate:submit:" # 防重复提交Key前缀
+    default-window: 60                     # 默认时间窗口（秒）
+    default-limit: 10                      # 默认限流次数
+    default-duplicate-lock-time: 3         # 默认防重复提交锁定时间（秒）
+    cluster-mode: false                    # 是否集群模式
+    default-rate-limit-message: "请求过于频繁，请稍后再试" # 默认限流提示信息
+    default-duplicate-message: "请勿重复提交" # 默认防重复提交提示信息
+    enable-monitor: true                   # 是否启用监控端点
+    monitor-path: "/actuator/ratelimit"    # 监控端点路径
+
+spring:
+  data:
+    redis:
+      host: 192.168.77.131  # Redis服务器地址
+      port: 6379            # Redis端口号
+      password: 123456      # Redis访问密码
+      database: 1           # Redis数据库索引（0-15）

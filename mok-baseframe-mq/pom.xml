@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.mok</groupId>
+        <artifactId>mok-baseframe</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>mok-baseframe-mq</artifactId>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <!-- 移除对core模块的依赖！解决循环依赖 -->
+        <!-- 只需要RabbitMQ相关依赖 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+
+        <!-- 依赖其他模块（不依赖core） -->
+        <dependency>
+            <groupId>com.mok</groupId>
+            <artifactId>mok-baseframe-model</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.mok</groupId>
+            <artifactId>mok-baseframe-dao</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.mok</groupId>
+            <artifactId>mok-baseframe-core</artifactId>
+        </dependency>
+
+        <!-- Jackson用于JSON序列化 -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+    </dependencies>
+</project>

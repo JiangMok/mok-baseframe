@@ -1,0 +1,29 @@
+${AnsiColor.BRIGHT_CYAN}
+
+ /$$      /$$  /$$$$$$  /$$   /$$       /$$$$$$$                                /$$$$$$$$
+| $$$    /$$$ /$$__  $$| $$  /$$/      | $$__  $$                              | $$_____/
+| $$$$  /$$$$| $$  \ $$| $$ /$$/       | $$  \ $$  /$$$$$$   /$$$$$$$  /$$$$$$ | $$     /$$$$$$  /$$$$$$  /$$$$$$/$$$$   /$$$$$$
+| $$ $$/$$ $$| $$  | $$| $$$$$/        | $$$$$$$  |____  $$ /$$_____/ /$$__  $$| $$$$$ /$$__  $$|____  $$| $$_  $$_  $$ /$$__  $$
+| $$  $$$| $$| $$  | $$| $$  $$        | $$__  $$  /$$$$$$$|  $$$$$$ | $$$$$$$$| $$__/| $$  \__/ /$$$$$$$| $$ \ $$ \ $$| $$$$$$$$
+| $$\  $ | $$| $$  | $$| $$\  $$       | $$  \ $$ /$$__  $$ \____  $$| $$_____/| $$   | $$      /$$__  $$| $$ | $$ | $$| $$_____/
+| $$ \/  | $$|  $$$$$$/| $$ \  $$      | $$$$$$$/|  $$$$$$$ /$$$$$$$/|  $$$$$$$| $$   | $$     |  $$$$$$$| $$ | $$ | $$|  $$$$$$$
+|__/     |__/ \______/ |__/  \__/      |_______/  \_______/|_______/  \_______/|__/   |__/      \_______/|__/ |__/ |__/ \_______/
+
+${AnsiColor.BRIGHT_GREEN}
+:: MOK Framework ::           ${AnsiColor.BRIGHT_YELLOW}(v${spring-boot.version:unknown})${AnsiColor.BRIGHT_WHITE}
+
+${AnsiColor.BRIGHT_MAGENTA}Spring Boot Version: ${spring-boot.version}${AnsiColor.DEFAULT}
+${AnsiColor.BRIGHT_CYAN}Active Profile: ${spring.profiles.active}${AnsiColor.DEFAULT}
+${AnsiColor.BRIGHT_GREEN}Server Port: ${server.port}${AnsiColor.DEFAULT}
+${AnsiColor.BRIGHT_YELLOW}Context Path: ${server.servlet.context-path}${AnsiColor.DEFAULT}
+${AnsiColor.BRIGHT_BLUE}Startup Time: ${spring-boot.startup-date}${AnsiColor.DEFAULT}
+${AnsiColor.BRIGHT_WHITE}Java Version: ${java.version}${AnsiColor.DEFAULT}
+${AnsiColor.BRIGHT_CYAN}OS: ${os.name} ${os.version}${AnsiColor.DEFAULT}
+
+${AnsiColor.BRIGHT_GREEN}
+════════════════════════════════════════════════════════════════════════════════
+ Application: ${spring.application.name}
+ Description: Security Framework for Enterprise Applications
+ Environment: ${spring.profiles.active:default}
+════════════════════════════════════════════════════════════════════════════════
+${AnsiColor.DEFAULT}

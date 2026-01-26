@@ -1,0 +1,309 @@
+# ================================
+# Java 相关
+# ================================
+
+# 编译产物
+*.class
+*.jar
+*.war
+*.ear
+
+# 打包文件
+target/
+build/
+out/
+bin/
+
+# IDE 文件
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Eclipse
+.settings/
+.project
+.classpath
+.metadata/
+
+# NetBeans
+nbproject/
+nb-configuration.xml
+
+# VS Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# ================================
+# 依赖管理
+# ================================
+
+# Maven
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+!mvnw
+!mvnw.cmd
+
+# Gradle
+.gradle/
+gradle/
+!gradle/wrapper/gradle-wrapper.jar
+!gradlew
+!gradlew.bat
+
+# 依赖缓存
+.m2/
+~/.m2/repository/
+
+# ================================
+# 数据库和日志
+# ================================
+
+# 本地数据库文件
+*.db
+*.sqlite
+*.h2.db
+
+# 日志文件
+*.log
+logs/
+!logs/.gitkeep
+
+# ================================
+# 操作系统文件
+# ================================
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Windows
+Desktop.ini
+Thumbs.db
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+*~
+
+# ================================
+# 项目配置文件（敏感信息）
+# ================================
+
+# 应用配置文件（通常包含敏感信息）
+application-prod.yml
+application-test.yml
+!application.yml  # 保留公共配置文件
+
+# 环境变量文件
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 密钥文件
+*.key
+*.pem
+*.p12
+*.jks
+*.keystore
+*.truststore
+
+# ================================
+# 开发工具
+# ================================
+
+# IntelliJ IDEA
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+# Eclipse
+.metadata
+.factorypath
+.recommenders
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# BlueJ
+*.ctxt
+
+# ================================
+# 测试和覆盖率报告
+# ================================
+
+# 单元测试覆盖率报告
+.coverage
+coverage/
+
+# JaCoCo
+jacoco.exec
+jacoco-it.exec
+
+# 测试报告
+test-output/
+test-results/
+target/surefire-reports/
+target/failsafe-reports/
+
+# ================================
+# 前端构建文件（如果包含前端）
+# ================================
+
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# 构建输出
+dist/
+build/
+.next/
+out/
+
+# Nuxt.js
+.nuxt
+
+# Gatsby
+.cache/
+public
+
+# Vue
+.vuepress/dist
+
+# ================================
+# 临时文件
+# ================================
+
+# 临时文件
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
+
+# 缓存文件
+.cache/
+.temp/
+
+# ================================
+# 文档生成
+# ================================
+
+# API 文档
+apidoc/
+doc/
+
+# Javadoc
+javadoc/
+
+# Swagger
+swagger-ui/
+
+# ================================
+# Docker 和容器化
+# ================================
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+docker-compose.override.yml
+
+# 容器镜像
+*.tar
+*.tar.gz
+
+# ================================
+# CI/CD 工具
+# ================================
+
+# Jenkins
+.jenkins/
+jenkins.log
+
+# GitLab CI
+.gitlab-ci.yml
+
+# GitHub Actions
+.github/workflows/
+!.github/workflows/.gitkeep
+
+# 持续集成输出
+ci-output/
+
+# ================================
+# 特定于本项目的自定义规则
+# ================================
+
+# 上传文件目录（如果有的话）
+uploads/
+temp-uploads/
+
+# 本地开发环境的数据文件
+data/
+
+# Redis 数据文件（如果使用本地Redis）
+dump.rdb
+appendonly.aof
+
+# MySQL 数据文件（如果使用本地MySQL）
+*.ibd
+*.frm
+*.MYD
+*.MYI
+*.ib_logfile*
+
+# ================================
+# 杂项
+# ================================
+
+# 大文件存储
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# 备份文件
+backup/
+*.backup
+
+# 性能分析文件
+*.hprof
+*.prof
+
+# 操作系统隐藏文件
+**/.DS_Store
+**/Thumbs.db
+
+# ================================
+# 排除特定需要跟踪的目录结构
+# ================================
+
+# 确保空目录被跟踪（如果需要的话）
+!**/.gitkeep
+
+# 保留示例配置文件（如果需要的话）
+!**/*.example
+!**/*.sample
+!**/*.template
+
+# 保留必要的脚本文件
+!**/*.sh
+!**/*.bat
