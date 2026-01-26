@@ -2,10 +2,9 @@ package com.mok.baseframe.ratelimiter.annotation;
 
 import java.lang.annotation.*;
 
-/**
- * @description: 防重复提交注解
- * @author: JN
-**/
+/*
+ *防重复提交
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
