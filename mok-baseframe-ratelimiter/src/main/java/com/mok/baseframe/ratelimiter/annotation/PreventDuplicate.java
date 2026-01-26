@@ -3,7 +3,7 @@ package com.mok.baseframe.ratelimiter.annotation;
 import java.lang.annotation.*;
 
 /*
- *防重复提交
+ *防重复提交注解类
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

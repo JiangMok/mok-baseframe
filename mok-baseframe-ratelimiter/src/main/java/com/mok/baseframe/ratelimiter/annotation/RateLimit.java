@@ -7,7 +7,7 @@ import java.lang.annotation.*;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 限流注解
+ * 限流注解类
 **/
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
