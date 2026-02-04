@@ -264,6 +264,10 @@
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
                     <version>${spring-boot.version}</version>
+                    <configuration>
+                        <!-- 指定主类 -->
+                        <mainClass>com.mok.baseframe.MokBaseframeApplication</mainClass>
+                    </configuration>
                     <executions>
                         <execution>
                             <goals>
