@@ -56,6 +56,7 @@ public class FileController {
      * 测试时，先登录获取token，然后在Header中添加：Authorization: Bearer {token}
      */
     @Operation(summary = "上传文件")
+    @OperationLog(title = "上传文件", businessType = BusinessType.INSERT)
     @PostMapping("/upload")
     @PreAuthorize("@permissionChecker.hasPermission('system:files:upload')")
     public R<FileUploadResponse> upload(
@@ -66,7 +67,23 @@ public class FileController {
                 file.getOriginalFilename(), file.getSize(), file.getContentType());
 
         try {
-            FileUploadResponse result = fileService.upload(file);
+            FileUploadResponse result = fileService.upload(file,2);
+            return R.ok("文件上传成功", result);
+        } catch (Exception e) {
+            log.error("文件上传失败", e);
+            return R.error(e.getMessage());
+        }
+    }
+
+    @Operation(summary = "上传用户头像")
+    @OperationLog(title = "上传用户头像", businessType = BusinessType.INSERT)
+    @PostMapping("/uploadAvatar")
+    @PreAuthorize("@permissionChecker.hasPermission('system:files:uploadAvatar')")
+    public R<FileUploadResponse> uploadAvatar(
+            @Parameter(description = "文件")
+            @RequestParam("file") MultipartFile file) {
+        try {
+            FileUploadResponse result = fileService.upload(file,1);
             return R.ok("文件上传成功", result);
         } catch (Exception e) {
             log.error("文件上传失败", e);
@@ -75,44 +92,44 @@ public class FileController {
     }
 
     @Operation(summary = "获取文件详情")
-    @GetMapping("/{fileId}")
+    @GetMapping("/{id}")
     public R<FileEntity> getFileInfo(
             @Parameter(description = "文件ID")
-            @PathVariable String fileId) {
+            @PathVariable String id) {
 
         try {
-            FileEntity fileInfo = fileService.getFileInfo(fileId);
+            FileEntity fileInfo = fileService.getFileInfo(id);
             return R.ok(fileInfo);
         } catch (Exception e) {
-            log.error("获取文件详情失败: {}", fileId, e);
+            log.error("获取文件详情失败: {}", id, e);
             return R.error("获取文件详情失败");
         }
     }
 
     @Operation(summary = "下载文件")
-    @GetMapping("/download/{fileId}")
+    @GetMapping("/download/{id}")
     public void download(
             @Parameter(description = "文件ID")
-            @PathVariable("fileId") String fileId,
+            @PathVariable("id") String id,
             HttpServletResponse response) {
 
-        log.info("文件下载: fileId={}", fileId);
-        fileService.download(fileId, response);
+        log.info("文件下载: id={}", id);
+        fileService.download(id, response);
     }
 
     @Operation(summary = "删除文件")
-    @DeleteMapping("/delete/{fileId}")
+    @DeleteMapping("/delete/{id}")
     @PreAuthorize("@permissionChecker.hasPermission('system:files:delete')")
     public R<Void> delete(
             @Parameter(description = "文件ID")
-            @PathVariable("fileId") String fileId) {
+            @PathVariable("id") String id) {
 
-        log.info("删除文件: fileId={}", fileId);
+        log.info("删除文件: id={}", id);
         try {
-            fileService.delete(fileId);
+            fileService.delete(id);
             return R.ok();
         } catch (Exception e) {
-            log.error("删除文件失败: {}", fileId, e);
+            log.error("删除文件失败: {}", id, e);
             return R.error("删除失败");
         }
     }
@@ -133,17 +150,17 @@ public class FileController {
     }
 
     @Operation(summary = "更新下载次数")
-    @PutMapping("/updateDownloadCount/{fileId}")
+    @PutMapping("/updateDownloadCount/{id}")
     public R<Void> updateDownloadCount(
             @Parameter(description = "文件ID")
-            @PathVariable("fileId") String fileId) {
+            @PathVariable("id") String id) {
 
-        log.info("更新下载次数: fileId={}", fileId);
+        log.info("更新下载次数: id={}", id);
         try {
-            fileService.updateDownloadCount(fileId);
+            fileService.updateDownloadCount(id);
             return R.ok();
         } catch (Exception e) {
-            log.error("更新下载次数失败: {}", fileId, e);
+            log.error("更新下载次数失败: {}", id, e);
             return R.error("更新失败");
         }
     }

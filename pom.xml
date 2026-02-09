@@ -26,6 +26,7 @@
         <module>mok-baseframe-file</module>
         <module>mok-baseframe-mq</module>
         <module>mok-baseframe-ratelimiter</module>
+        <module>mok-baseframe-order</module>
     </modules>
 
     <properties>
@@ -143,6 +144,11 @@
             <dependency>
                 <groupId>com.mok</groupId>
                 <artifactId>mok-baseframe-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.mok</groupId>
+                <artifactId>mok-baseframe-order</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

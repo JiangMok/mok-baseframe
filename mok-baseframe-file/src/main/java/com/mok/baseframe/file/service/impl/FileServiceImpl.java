@@ -1,5 +1,6 @@
 package com.mok.baseframe.file.service.impl;
 
+import cn.hutool.core.util.IdUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -93,7 +94,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public FileUploadResponse upload(MultipartFile file) {
+    public FileUploadResponse upload(MultipartFile file,Integer businessType) {
         try {
             // 1. 验证文件
             validateFile(file);
@@ -106,7 +107,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
 
             // 3. 生成存储路径
             String datePath = LocalDateTime.now().format(DATE_FORMATTER);
-            String storageName = UUID.randomUUID().toString() + "." + extension;
+            String storageName = UUID.randomUUID() + "." + extension;
             String relativePath = datePath + "/" + storageName;
 
             // 4. 保存到本地
@@ -116,7 +117,8 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
 
             // 5. 保存到数据库
             FileEntity fileEntity = new FileEntity();
-            fileEntity.setFileId(UUID.randomUUID().toString());
+            fileEntity.setBusinessType(businessType);
+            fileEntity.setId(IdUtil.simpleUUID());
             fileEntity.setOriginalName(originalName);
             fileEntity.setStorageName(storageName);
             fileEntity.setFilePath(relativePath);
@@ -137,7 +139,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
                     String.format("http://localhost:8080%s", fileEntity.getFileUrl()));
             // 6. 返回结果
             return FileUploadResponse.builder()
-                    .fileId(fileEntity.getFileId())
+                    .id(fileEntity.getId())
                     .originalName(originalName)
                     .fileUrl(fileEntity.getFileUrl())
                     .fileSize(fileSize)
@@ -151,15 +153,16 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
     }
 
     @Override
-    public FileEntity getFileInfo(String fileId) {
-        FileEntity fileEntity = getFileEntity(fileId);
+    public FileEntity getFileInfo(String id) {
+        FileEntity fileEntity = getFileEntity(id);
         return convertToFileInfo(fileEntity);
     }
 
     @Override
-    public void download(String fileId, HttpServletResponse response) {
+    @Transactional(rollbackFor = Exception.class)
+    public void download(String id, HttpServletResponse response) {
         try {
-            FileEntity fileEntity = getFileEntity(fileId);
+            FileEntity fileEntity = getFileEntity(id);
 
             Path filePath = Paths.get(fileStorageConfig.getBasePath(), fileEntity.getFilePath());
             File file = filePath.toFile();
@@ -183,7 +186,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
             }
 
             // 更新下载次数
-            updateDownloadCount(fileId);
+            updateDownloadCount(id);
 
         } catch (IOException e) {
             log.error("文件下载失败", e);
@@ -193,8 +196,8 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void delete(String fileId) {
-        FileEntity fileEntity = getFileEntity(fileId);
+    public void delete(String id) {
+        FileEntity fileEntity = getFileEntity(id);
 
         // 逻辑删除
         fileEntity.setStatus(0);
@@ -223,8 +226,8 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void updateDownloadCount(String fileId) {
-        baseMapper.incrementDownloadCount(fileId);
+    public void updateDownloadCount(String id) {
+        baseMapper.incrementDownloadCount(id);
     }
 
     private void validateFile(MultipartFile file) {
@@ -256,14 +259,14 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
         }
     }
 
-    private FileEntity getFileEntity(String fileId) {
+    private FileEntity getFileEntity(String id) {
         LambdaQueryWrapper<FileEntity> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(FileEntity::getFileId, fileId)
+        queryWrapper.eq(FileEntity::getId, id)
                 .eq(FileEntity::getStatus, 1);
 
         FileEntity fileEntity = getOne(queryWrapper);
         if (fileEntity == null) {
-            throw new FileNotFoundException(fileId);
+            throw new FileNotFoundException(id);
         }
         return fileEntity;
     }

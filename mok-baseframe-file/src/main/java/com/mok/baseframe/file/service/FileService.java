@@ -25,12 +25,12 @@ public interface FileService {
     /**
      * 上传文件
      */
-    FileUploadResponse upload(MultipartFile file);
+    FileUploadResponse upload(MultipartFile file,Integer businessType);
 
     /**
      * 获取文件详情
      */
-    FileEntity getFileInfo(String fileId);
+    FileEntity getFileInfo(String id);
 
     /**
      * 下载文件
@@ -40,7 +40,7 @@ public interface FileService {
     /**
      * 删除文件（逻辑删除）
      */
-    void delete(String fileId);
+    void delete(String id);
 
     /**
      * 批量删除文件
@@ -50,5 +50,5 @@ public interface FileService {
     /**
      * 更新下载次数
      */
-    void updateDownloadCount(String fileId);
+    void updateDownloadCount(String id);
 }

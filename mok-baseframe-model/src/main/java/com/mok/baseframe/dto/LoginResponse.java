@@ -41,6 +41,16 @@ public class LoginResponse  {
     //  作用 : 返回登录用户的唯一标识符
     private String userId;
 
+    private String avatar;
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
     // 默认构造函数
     public LoginResponse() {
     }

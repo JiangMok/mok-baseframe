@@ -10,15 +10,22 @@ import com.mok.baseframe.common.BusinessException;
 import com.mok.baseframe.common.PageParam;
 import com.mok.baseframe.common.PageResult;
 import com.mok.baseframe.dao.PermissionMapper;
+import com.mok.baseframe.dao.RoleMapper;
+import com.mok.baseframe.dao.RolePermissionMapper;
 import com.mok.baseframe.dto.PermissionDTO;
 import com.mok.baseframe.entity.PermissionEntity;
+import com.mok.baseframe.entity.RoleEntity;
+import com.mok.baseframe.entity.RolePermissionEntity;
+import com.mok.baseframe.service.PermissionCacheService;
+import com.mok.baseframe.utils.LogUtils;
+import com.mok.baseframe.utils.SecurityUtils;
+import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @description: 权限 service 接口实现类 (需要学习)
@@ -32,11 +39,23 @@ import java.util.stream.Collectors;
 public class PermissionServiceImpl
         extends ServiceImpl<PermissionMapper, PermissionEntity>
         implements PermissionService {
-
+    private static final Logger log = LogUtils.getLogger(PermissionServiceImpl.class);
     private final PermissionMapper permissionMapper;
+    private final RoleMapper roleMapper;
+    private final SecurityUtils securityUtils;
+    private final RolePermissionMapper rolePermissionMapper;
+    private final PermissionCacheService permissionCacheService;
 
-    public PermissionServiceImpl(PermissionMapper permissionMapper) {
+    public PermissionServiceImpl(PermissionMapper permissionMapper,
+                                 RoleMapper roleMapper,
+                                 SecurityUtils securityUtils,
+                                 RolePermissionMapper rolePermissionMapper,
+                                 PermissionCacheService permissionCacheService) {
         this.permissionMapper = permissionMapper;
+        this.roleMapper = roleMapper;
+        this.securityUtils = securityUtils;
+        this.rolePermissionMapper = rolePermissionMapper;
+        this.permissionCacheService = permissionCacheService;
     }
 
     @Override
@@ -105,9 +124,9 @@ public class PermissionServiceImpl
         List<PermissionEntity> menus = permissionEntities.stream()
                 .filter(p ->
                         p.getType() == 1
-                        && p.getStatus() == 1
-                        && p.getIsDeleted() == 0
-                        && p.getVisible() == 1)
+                                && p.getStatus() == 1
+                                && p.getIsDeleted() == 0
+                                && p.getVisible() == 1)
                 //先比较 sort ,然后在比较 createTime
                 .sorted(Comparator.comparingInt(PermissionEntity::getSort).thenComparing(PermissionEntity::getCreateTime))
                 .toList();
@@ -217,6 +236,41 @@ public class PermissionServiceImpl
         BeanUtils.copyProperties(permissionDTO, permissionEntity);
         permissionEntity.setId(IdUtil.simpleUUID());
         save(permissionEntity);
+        //查询当前用户的角色
+        String userId = securityUtils.getCurrentUserId();
+        List<RoleEntity> roleEntityList = roleMapper.selectRolesByUserId(userId);
+        //创建角色权限关联的list,方便后续批量插入
+        List<RolePermissionEntity> rolePermissionEntityList = new ArrayList<>();
+        //判断是否是超级管理员角色
+        boolean isAdminRole = roleEntityList.stream()
+                .anyMatch(role -> "ROLE_ADMIN".equals(role.getRoleCode()));
+        if (!isAdminRole) {
+            RolePermissionEntity rolePermissionEntity = new RolePermissionEntity();
+            rolePermissionEntity.setId(IdUtil.simpleUUID());
+            rolePermissionEntity.setPermissionId(permissionEntity.getId());
+            //超级管理员橘色的的ID = 1
+            rolePermissionEntity.setRoleId("1");
+            rolePermissionEntityList.add(rolePermissionEntity);
+        }
+        for (RoleEntity roleEntity : roleEntityList) {
+            RolePermissionEntity rolePermissionEntity = new RolePermissionEntity();
+            rolePermissionEntity.setId(IdUtil.simpleUUID());
+            rolePermissionEntity.setRoleId(roleEntity.getId());
+            rolePermissionEntity.setPermissionId(permissionEntity.getId());
+            rolePermissionEntityList.add(rolePermissionEntity);
+        }
+        //批量插入
+        try {
+            rolePermissionMapper.insertBatch(rolePermissionEntityList);
+        } catch (Exception e) {
+            // 回退方案：逐条插入
+            log.warn("批量插入失败，转为逐条插入", e);
+            for (RolePermissionEntity rolePermissionEntity : rolePermissionEntityList) {
+                rolePermissionMapper.insert(rolePermissionEntity);
+            }
+        }
+        //清空redis里缓存的权限
+        permissionCacheService.clearAllPermissionCache();
         return permissionEntity.getId();
     }
 

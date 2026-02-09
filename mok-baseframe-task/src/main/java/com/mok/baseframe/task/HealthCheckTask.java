@@ -27,9 +27,9 @@ public class HealthCheckTask {
     }
 
     /**
-     * 每分钟执行一次健康检查
+     * 每5分钟执行一次健康检查
      */
-    @Scheduled(fixedRate = 60000) // 60秒 60*1000
+    @Scheduled(fixedRate = 300000) // 例:60秒 60*1000=60000
     public void scheduledHealthCheck() {
         try {
             Map<String, Object> health = healthCheckService.performHealthCheck();
@@ -41,7 +41,7 @@ public class HealthCheckTask {
             } else if ("WARNING".equals(status)) {
                 log.warn("⚠️ 系统健康检查警告: {}", health);
             } else {
-                log.debug("✅ 系统健康检查正常: {}", health);
+                log.info("✅ 系统健康检查正常: {}", health);
             }
         } catch (Exception e) {
             log.error("健康检查任务执行失败", e);

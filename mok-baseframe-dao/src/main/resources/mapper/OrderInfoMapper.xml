@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mok.baseframe.dao.OrderInfoMapper">
+
+    <resultMap id="BaseResultMap" type="com.mok.baseframe.entity.OrderInfoEntity">
+        <id column="id" property="id" />
+        <result column="order_no" property="orderNo" />
+        <result column="user_id" property="userId" />
+        <result column="product_id" property="productId" />
+        <result column="product_name" property="productName" />
+        <result column="product_price" property="productPrice" />
+        <result column="quantity" property="quantity" />
+        <result column="original_amount" property="originalAmount" />
+        <result column="discount_amount" property="discountAmount" />
+        <result column="pay_amount" property="payAmount" />
+        <result column="order_status" property="orderStatus" />
+        <result column="pay_status" property="payStatus" />
+        <result column="pay_time" property="payTime" />
+        <result column="pay_type" property="payType" />
+        <result column="transaction_id" property="transactionId" />
+        <result column="order_type" property="orderType" />
+        <result column="cancel_reason" property="cancelReason" />
+        <result column="cancel_time" property="cancelTime" />
+        <result column="delivery_time" property="deliveryTime" />
+        <result column="receive_time" property="receiveTime" />
+        <result column="close_time" property="closeTime" />
+        <result column="remark" property="remark" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, order_no, user_id, product_id, product_name, product_price, quantity,
+        original_amount, discount_amount, pay_amount, order_status, pay_status,
+        pay_time, pay_type, transaction_id, order_type, cancel_reason, cancel_time,
+        delivery_time, receive_time, close_time, remark, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.mok.baseframe.entity.OrderInfoEntity" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO order_info (
+            id,order_no, user_id, product_id, product_name, product_price, quantity,
+            original_amount, discount_amount, pay_amount, order_status, pay_status,
+            order_type, remark
+        ) VALUES (
+                     #{id},#{orderNo}, #{userId}, #{productId}, #{productName}, #{productPrice}, #{quantity},
+                     #{originalAmount}, #{discountAmount}, #{payAmount}, #{orderStatus}, #{payStatus},
+                     #{orderType}, #{remark}
+                 )
+    </insert>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM order_info
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectByOrderNo" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM order_info
+        WHERE order_no = #{orderNo}
+    </select>
+
+    <update id="update" parameterType="com.mok.baseframe.entity.OrderInfoEntity">
+        UPDATE order_info
+        <set>
+            <if test="orderStatus != null">order_status = #{orderStatus},</if>
+            <if test="payStatus != null">pay_status = #{payStatus},</if>
+            <if test="payTime != null">pay_time = #{payTime},</if>
+            <if test="payType != null">pay_type = #{payType},</if>
+            <if test="transactionId != null">transaction_id = #{transactionId},</if>
+            <if test="cancelReason != null">cancel_reason = #{cancelReason},</if>
+            <if test="cancelTime != null">cancel_time = #{cancelTime},</if>
+            <if test="deliveryTime != null">delivery_time = #{deliveryTime},</if>
+            <if test="receiveTime != null">receive_time = #{receiveTime},</if>
+            <if test="closeTime != null">close_time = #{closeTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectByPage" resultMap="BaseResultMap" parameterType="map">
+        SELECT <include refid="Base_Column_List" />
+        FROM order_info
+        WHERE 1=1
+        <if test="orderNo != null and orderNo != ''">
+            AND order_no = #{orderNo}
+        </if>
+        <if test="userId != null">
+            AND user_id = #{userId}
+        </if>
+        <if test="productName != null and productName != ''">
+            AND product_name LIKE CONCAT('%', #{productName}, '%')
+        </if>
+        <if test="orderStatus != null">
+            AND order_status = #{orderStatus}
+        </if>
+        <if test="payStatus != null">
+            AND pay_status = #{payStatus}
+        </if>
+        <if test="startTime != null">
+            AND create_time >= #{startTime}
+        </if>
+        <if test="endTime != null">
+            AND create_time &lt;= #{endTime}
+        </if>
+        ORDER BY create_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countByPage" resultType="long" parameterType="map">
+        SELECT COUNT(1)
+        FROM order_info
+        WHERE 1=1
+        <if test="orderNo != null and orderNo != ''">
+            AND order_no = #{orderNo}
+        </if>
+        <if test="userId != null">
+            AND user_id = #{userId}
+        </if>
+        <if test="productName != null and productName != ''">
+            AND product_name LIKE CONCAT('%', #{productName}, '%')
+        </if>
+        <if test="orderStatus != null">
+            AND order_status = #{orderStatus}
+        </if>
+        <if test="payStatus != null">
+            AND pay_status = #{payStatus}
+        </if>
+        <if test="startTime != null">
+            AND create_time >= #{startTime}
+        </if>
+        <if test="endTime != null">
+            AND create_time &lt;= #{endTime}
+        </if>
+    </select>
+
+    <!-- 更新订单状态（带乐观锁） -->
+    <update id="updateOrderStatus">
+        UPDATE order_info
+        SET order_status = #{newStatus},
+        <if test="cancelReason != null">cancel_reason = #{cancelReason},</if>
+        <if test="cancelTime != null">cancel_time = #{cancelTime},</if>
+        update_time = NOW()
+        WHERE id = #{id}
+        AND order_status = #{oldStatus}
+    </update>
+
+    <!-- 更新支付状态（带乐观锁） -->
+    <update id="updatePayStatus">
+        UPDATE order_info
+        SET pay_status = #{newPayStatus},
+        <if test="payTime != null">pay_time = #{payTime},</if>
+        <if test="payType != null">pay_type = #{payType},</if>
+        <if test="transactionId != null">transaction_id = #{transactionId},</if>
+        update_time = NOW()
+        WHERE id = #{id}
+        AND pay_status = #{oldPayStatus}
+    </update>
+
+    <!-- 查询超时未支付订单 -->
+    <select id="selectTimeoutOrders" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM order_info
+        WHERE order_status = #{status}
+        AND pay_status = 0
+        AND TIMESTAMPDIFF(MINUTE, create_time, NOW()) > #{timeoutMinutes}
+        ORDER BY create_time
+        LIMIT 100
+    </select>
+
+    <!-- 关闭超时订单 -->
+    <update id="closeTimeoutOrders">
+        UPDATE order_info
+        SET order_status = #{newStatus},
+            close_time = NOW(),
+            update_time = NOW()
+        WHERE order_status = #{oldStatus}
+          AND pay_status = 0
+          AND TIMESTAMPDIFF(MINUTE, create_time, NOW()) > #{timeoutMinutes}
+    </update>
+
+</mapper>

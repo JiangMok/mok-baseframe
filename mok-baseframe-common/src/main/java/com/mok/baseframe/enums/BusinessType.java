@@ -16,7 +16,6 @@ public enum BusinessType {
     EXPORT("导出"),
     IMPORT("导入"),
     FORCE("强退"),
-    GEN_CODE("生成代码"),
     CLEAN("清空数据");
 
     private final String value;

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mok.baseframe.dao.InventoryLogMapper">
+
+    <resultMap id="BaseResultMap" type="com.mok.baseframe.entity.InventoryLogEntity">
+        <id column="id" property="id" />
+        <result column="product_id" property="productId" />
+        <result column="order_id" property="orderId" />
+        <result column="order_no" property="orderNo" />
+        <result column="change_type" property="changeType" />
+        <result column="change_quantity" property="changeQuantity" />
+        <result column="before_quantity" property="beforeQuantity" />
+        <result column="after_quantity" property="afterQuantity" />
+        <result column="remark" property="remark" />
+        <result column="create_time" property="createTime" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, product_id, order_id, order_no, change_type, change_quantity,
+        before_quantity, after_quantity, remark, create_time
+    </sql>
+
+    <insert id="insert" parameterType="com.mok.baseframe.entity.InventoryLogEntity" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO inventory_log (
+            id,product_id, order_id, order_no, change_type, change_quantity,
+            before_quantity, after_quantity, remark
+        ) VALUES (
+                     #{id},#{productId}, #{orderId}, #{orderNo}, #{changeType}, #{changeQuantity},
+                     #{beforeQuantity}, #{afterQuantity}, #{remark}
+                 )
+    </insert>
+
+</mapper>

@@ -1,5 +1,6 @@
 package com.mok.baseframe.ratelimiter.aspect;
 
+import com.mok.baseframe.common.BusinessException;
 import com.mok.baseframe.ratelimiter.annotation.PreventDuplicate;
 import com.mok.baseframe.ratelimiter.annotation.RateLimit;
 import com.mok.baseframe.ratelimiter.config.RateLimiterProperties;
@@ -76,18 +77,21 @@ public class RateLimitAspect {
                 .build();
             // 执行限流检查
             var result = rateLimiterService.check(context);
-            
+            logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
             if (!result.isAllowed()) {
                 String message = result.getRetryAfter() != null ?
                     String.format("%s，请等待 %d 秒后重试", context.getMessage(), result.getRetryAfter()) :
                     context.getMessage();
                 
-                throw new RateLimitException(message, result.getRetryAfter());
+//                throw new RateLimitException(message, result.getRetryAfter());
+                throw new BusinessException(message);
             }
             
             logger.debug("限流通过: key={}, scope={}", key, rateLimitAnnotation.scope());
             
-        } catch (RateLimitException e) {
+//        } catch (RateLimitException e) {
+//            throw e;
+        } catch (BusinessException e) {
             throw e;
         } catch (Exception e) {
             logger.error("限流切面错误", e);
@@ -117,12 +121,15 @@ public class RateLimitAspect {
                 if (message == null || message.isEmpty()) {
                     message = properties.getDefaultDuplicateMessage();
                 }
-                throw new DuplicateSubmitException(message);
+//                throw new DuplicateSubmitException(message);
+                throw new BusinessException(message);
             }
             
             logger.debug("重复提交防护通过: key={}", key);
             
-        } catch (DuplicateSubmitException e) {
+//        } catch (DuplicateSubmitException e) {
+//            throw e;
+        } catch (BusinessException e) {
             throw e;
         } catch (Exception e) {
             logger.error("防止重复切面错误", e);

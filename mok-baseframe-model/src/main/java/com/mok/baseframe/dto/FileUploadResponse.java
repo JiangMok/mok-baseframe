@@ -3,7 +3,7 @@ package com.mok.baseframe.dto;
 import java.util.Objects;
 
 public class FileUploadResponse {
-    private String fileId;
+    private String id;
     private String originalName;
     private String fileUrl;
     private Long fileSize;
@@ -12,8 +12,8 @@ public class FileUploadResponse {
     public FileUploadResponse() {
     }
     
-    public FileUploadResponse(String fileId, String originalName, String fileUrl, Long fileSize, String fileType) {
-        this.fileId = fileId;
+    public FileUploadResponse(String id, String originalName, String fileUrl, Long fileSize, String fileType) {
+        this.id = id;
         this.originalName = originalName;
         this.fileUrl = fileUrl;
         this.fileSize = fileSize;
@@ -21,14 +21,16 @@ public class FileUploadResponse {
     }
     
     // Getter 和 Setter 方法
-    public String getFileId() {
-        return fileId;
+
+
+    public String getId() {
+        return id;
     }
-    
-    public void setFileId(String fileId) {
-        this.fileId = fileId;
+
+    public void setId(String id) {
+        this.id = id;
     }
-    
+
     public String getOriginalName() {
         return originalName;
     }
@@ -67,14 +69,14 @@ public class FileUploadResponse {
     }
     
     public static class Builder {
-        private String fileId;
+        private String id;
         private String originalName;
         private String fileUrl;
         private Long fileSize;
         private String fileType;
         
-        public Builder fileId(String fileId) {
-            this.fileId = fileId;
+        public Builder id(String id) {
+            this.id = id;
             return this;
         }
         
@@ -99,7 +101,7 @@ public class FileUploadResponse {
         }
         
         public FileUploadResponse build() {
-            return new FileUploadResponse(fileId, originalName, fileUrl, fileSize, fileType);
+            return new FileUploadResponse(id, originalName, fileUrl, fileSize, fileType);
         }
     }
     
@@ -113,7 +115,7 @@ public class FileUploadResponse {
             return false;
         }
         FileUploadResponse that = (FileUploadResponse) o;
-        return Objects.equals(fileId, that.fileId) &&
+        return Objects.equals(id, that.id) &&
                 Objects.equals(originalName, that.originalName) &&
                 Objects.equals(fileUrl, that.fileUrl) &&
                 Objects.equals(fileSize, that.fileSize) &&
@@ -122,14 +124,14 @@ public class FileUploadResponse {
     
     @Override
     public int hashCode() {
-        return Objects.hash(fileId, originalName, fileUrl, fileSize, fileType);
+        return Objects.hash(id, originalName, fileUrl, fileSize, fileType);
     }
     
     // toString 方法
     @Override
     public String toString() {
         return "FileUploadResponse{" +
-                "fileId='" + fileId + '\'' +
+                "id='" + id + '\'' +
                 ", originalName='" + originalName + '\'' +
                 ", fileUrl='" + fileUrl + '\'' +
                 ", fileSize=" + fileSize +

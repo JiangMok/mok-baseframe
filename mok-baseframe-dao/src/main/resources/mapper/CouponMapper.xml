@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mok.baseframe.dao.CouponMapper">
+
+    <resultMap id="BaseResultMap" type="com.mok.baseframe.entity.CouponEntity">
+        <id column="id" property="id" />
+        <result column="coupon_name" property="couponName" />
+        <result column="coupon_type" property="couponType" />
+        <result column="threshold_amount" property="thresholdAmount" />
+        <result column="discount_amount" property="discountAmount" />
+        <result column="discount_rate" property="discountRate" />
+        <result column="total_quantity" property="totalQuantity" />
+        <result column="remaining_quantity" property="remainingQuantity" />
+        <result column="per_limit" property="perLimit" />
+        <result column="start_time" property="startTime" />
+        <result column="end_time" property="endTime" />
+        <result column="status" property="status" />
+        <result column="version" property="version" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, coupon_name, coupon_type, threshold_amount, discount_amount, discount_rate,
+        total_quantity, remaining_quantity, per_limit, start_time, end_time, status,
+        version, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.mok.baseframe.entity.CouponEntity" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO coupon (
+            id,coupon_name, coupon_type, threshold_amount, discount_amount, discount_rate,
+            total_quantity, remaining_quantity, per_limit, start_time, end_time, status, version
+        ) VALUES (
+                     #{id},#{couponName}, #{couponType}, #{thresholdAmount}, #{discountAmount}, #{discountRate},
+                     #{totalQuantity}, #{remainingQuantity}, #{perLimit}, #{startTime}, #{endTime}, #{status}, 0
+                 )
+    </insert>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM coupon
+        WHERE id = #{id}
+    </select>
+
+    <update id="update" parameterType="com.mok.baseframe.entity.CouponEntity">
+        UPDATE coupon
+        <set>
+            <if test="couponName != null">coupon_name = #{couponName},</if>
+            <if test="couponType != null">coupon_type = #{couponType},</if>
+            <if test="thresholdAmount != null">threshold_amount = #{thresholdAmount},</if>
+            <if test="discountAmount != null">discount_amount = #{discountAmount},</if>
+            <if test="discountRate != null">discount_rate = #{discountRate},</if>
+            <if test="totalQuantity != null">total_quantity = #{totalQuantity},</if>
+            <if test="remainingQuantity != null">remaining_quantity = #{remainingQuantity},</if>
+            <if test="perLimit != null">per_limit = #{perLimit},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="status != null">status = #{status},</if>
+            version = version + 1
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="deleteById">
+        UPDATE coupon SET status = 0 WHERE id = #{id}
+    </update>
+
+    <select id="selectByPage" resultMap="BaseResultMap" parameterType="com.mok.baseframe.common.PageParam">
+        SELECT <include refid="Base_Column_List" />
+        FROM coupon
+        WHERE 1=1
+        <if test="params.couponName != null and params.couponName != ''">
+            AND coupon_name LIKE CONCAT('%', #{params.couponName}, '%')
+        </if>
+        <if test="params.couponType != null">
+            AND coupon_type = #{params.couponType}
+        </if>
+        <if test="params.status != null">
+            AND status = #{params.status}
+        </if>
+        <if test="params.available != null and params.available">
+            AND status = 1
+            AND start_time &lt;= NOW()
+            AND end_time >= NOW()
+        </if>
+        ORDER BY create_time DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+    <select id="countByPage" resultType="long" parameterType="com.mok.baseframe.common.PageParam">
+        SELECT COUNT(1)
+        FROM coupon
+        WHERE 1=1
+        <if test="params.couponName != null and params.couponName != ''">
+            AND coupon_name LIKE CONCAT('%', #{params.couponName}, '%')
+        </if>
+        <if test="params.couponType != null">
+            AND coupon_type = #{params.couponType}
+        </if>
+        <if test="params.status != null">
+            AND status = #{params.status}
+        </if>
+        <if test="params.available != null and params.available">
+            AND status = 1
+            AND start_time &lt;= NOW()
+            AND end_time >= NOW()
+        </if>
+    </select>
+
+    <!-- 扣减优惠券库存（带乐观锁） -->
+    <update id="reduceCouponStock">
+        UPDATE coupon
+        SET remaining_quantity = remaining_quantity - #{quantity},
+            version = version + 1
+        WHERE id = #{id}
+          AND remaining_quantity >= #{quantity}
+          AND version = #{version}
+    </update>
+
+    <!-- 恢复优惠券库存 -->
+    <update id="restoreCouponStock">
+        UPDATE coupon
+        SET remaining_quantity = remaining_quantity + #{quantity},
+            version = version + 1
+        WHERE id = #{id}
+          AND version = #{version}
+    </update>
+
+    <!-- 查询可用的优惠券列表 -->
+    <select id="selectAvailableCoupons" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM coupon
+        WHERE status = 1
+        AND remaining_quantity > 0
+        AND start_time &lt;= NOW()
+        AND end_time >= NOW()
+        ORDER BY start_time DESC
+    </select>
+
+</mapper>

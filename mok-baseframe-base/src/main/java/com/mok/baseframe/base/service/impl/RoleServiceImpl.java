@@ -15,6 +15,7 @@ import com.mok.baseframe.dao.RolePermissionMapper;
 import com.mok.baseframe.dao.UserRoleMapper;
 import com.mok.baseframe.dto.RoleDTO;
 import com.mok.baseframe.entity.*;
+import com.mok.baseframe.service.PermissionCacheService;
 import com.mok.baseframe.utils.LogUtils;
 import com.mok.baseframe.utils.SecurityUtils;
 import org.slf4j.Logger;
@@ -39,28 +40,29 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, RoleEntity> impleme
     private static final Logger log = LogUtils.getLogger(RoleServiceImpl.class);
 
     private final UserRoleMapper userRoleMapper;
-
     private final RolePermissionMapper rolePermissionMapper;
-
     private final PermissionMapper permissionMapper;
     private final SecurityUtils securityUtils;
+    private final PermissionCacheService permissionCacheService;
 
     public RoleServiceImpl(UserRoleMapper userRoleMapper,
                            RolePermissionMapper rolePermissionMapper,
                            PermissionMapper permissionMapper,
-                           SecurityUtils securityUtils) {
+                           SecurityUtils securityUtils,
+                           PermissionCacheService permissionCacheService) {
         this.userRoleMapper = userRoleMapper;
         this.rolePermissionMapper = rolePermissionMapper;
         this.permissionMapper = permissionMapper;
         this.securityUtils = securityUtils;
+        this.permissionCacheService = permissionCacheService;
     }
 
     @Override
     public PageResult<RoleEntity> getPageList(PageParam param) {
         //创建角色查询器
         List<RoleEntity> roleEntityList = baseMapper.selectRolesByUserId(securityUtils.getCurrentUserId());
-        List<String>  currentUserRoleIds = new ArrayList<>();
-        for(RoleEntity roleEntity : roleEntityList){
+        List<String> currentUserRoleIds = new ArrayList<>();
+        for (RoleEntity roleEntity : roleEntityList) {
             currentUserRoleIds.add(roleEntity.getId());
         }
         //创建分页对象
@@ -182,7 +184,6 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, RoleEntity> impleme
                     )
                     .toList();
 
-            // 修改：检查批量插入方法是否存在，如果不存在则循环插入
             try {
                 userRoleMapper.insertBatch(userRoleEntities);
             } catch (Exception e) {
@@ -365,6 +366,8 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, RoleEntity> impleme
 
             try {
                 rolePermissionMapper.insertBatch(rolePermissionEntities);
+                //清空redis里缓存的权限
+                permissionCacheService.clearAllPermissionCache();
             } catch (Exception e) {
                 log.error("批量插入角色权限失败", e);
                 throw new BusinessException("分配权限失败");
@@ -374,6 +377,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, RoleEntity> impleme
         log.info("角色{}权限分配完成，分配权限数：{}", roleId,
                 permissionIds != null ? permissionIds.size() : 0);
     }
+
     // 判断是否是管理员角色
     private boolean isAdminRole(List<String> roleIds) {
         if (roleIds == null || roleIds.isEmpty()) {

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mok.baseframe.dao.UserCouponMapper">
+
+    <resultMap id="BaseResultMap" type="com.mok.baseframe.entity.UserCouponEntity">
+        <id column="id" property="id" />
+        <result column="user_id" property="userId" />
+        <result column="coupon_id" property="couponId" />
+        <result column="coupon_code" property="couponCode" />
+        <result column="status" property="status" />
+        <result column="order_id" property="orderId" />
+        <result column="use_time" property="useTime" />
+        <result column="start_time" property="startTime" />
+        <result column="end_time" property="endTime" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, user_id, coupon_id, coupon_code, status, order_id, use_time,
+        start_time, end_time, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.mok.baseframe.entity.UserCouponEntity" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_coupon (
+            id,user_id, coupon_id, coupon_code, status, order_id, use_time,
+            start_time, end_time
+        ) VALUES (
+                     #{id},#{userId}, #{couponId}, #{couponCode}, #{status}, #{orderId}, #{useTime},
+                     #{startTime}, #{endTime}
+                 )
+    </insert>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM user_coupon
+        WHERE id = #{id}
+    </select>
+
+    <update id="update" parameterType="com.mok.baseframe.entity.UserCouponEntity">
+        UPDATE user_coupon
+        <set>
+            <if test="status != null">status = #{status},</if>
+            <if test="orderId != null">order_id = #{orderId},</if>
+            <if test="useTime != null">use_time = #{useTime},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectByUserAndCoupon" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM user_coupon
+        WHERE user_id = #{userId}
+        AND coupon_id = #{couponId}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectAvailableByUser" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM user_coupon
+        WHERE user_id = #{userId}
+        AND status = 0
+        AND start_time &lt;= NOW()
+        AND end_time >= NOW()
+        ORDER BY end_time ASC
+    </select>
+
+    <select id="selectByUser" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM user_coupon
+        WHERE user_id = #{userId}
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+        ORDER BY create_time DESC
+    </select>
+
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO user_coupon (
+        user_id, coupon_id, coupon_code, status, order_id, use_time,
+        start_time, end_time
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.userId}, #{item.couponId}, #{item.couponCode}, #{item.status}, #{item.orderId}, #{item.useTime},
+            #{item.startTime}, #{item.endTime}
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateExpiredCoupons">
+        UPDATE user_coupon
+        SET status = 2
+        WHERE status = 0
+          AND end_time &lt; NOW()
+    </update>
+
+</mapper>

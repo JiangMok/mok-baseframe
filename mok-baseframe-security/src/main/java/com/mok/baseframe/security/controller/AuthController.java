@@ -128,6 +128,7 @@ public class AuthController {
         //构建登录响应
         LoginResponse loginResponse = new LoginResponse();
         loginResponse.setToken(token);
+        loginResponse.setAvatar(userEntity.getAvatar());
         loginResponse.setRefreshToken(refreshToken);
         //设定过期时间为两个小时 >>> 7200L
         loginResponse.setExpiresIn(7200L);

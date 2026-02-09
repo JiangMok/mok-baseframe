@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mok.baseframe.dao.ProductMapper">
+
+    <resultMap id="BaseResultMap" type="com.mok.baseframe.entity.ProductEntity">
+        <id column="id" property="id" />
+        <result column="product_name" property="productName" />
+        <result column="product_desc" property="productDesc" />
+        <result column="price" property="price" />
+        <result column="stock" property="stock" />
+        <result column="seckill_stock" property="seckillStock" />
+        <result column="seckill_price" property="seckillPrice" />
+        <result column="seckill_start_time" property="seckillStartTime" />
+        <result column="seckill_end_time" property="seckillEndTime" />
+        <result column="status" property="status" />
+        <result column="version" property="version" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, product_name, product_desc, price, stock, seckill_stock, seckill_price,
+        seckill_start_time, seckill_end_time, status, version, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.mok.baseframe.entity.ProductEntity" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO product (
+            id,product_name, product_desc, price, stock, seckill_stock, seckill_price,
+            seckill_start_time, seckill_end_time, status, version
+        ) VALUES (
+                     #{id},#{productName}, #{productDesc}, #{price}, #{stock}, #{seckillStock}, #{seckillPrice},
+                     #{seckillStartTime}, #{seckillEndTime}, #{status}, 0
+                 )
+    </insert>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM product
+        WHERE id = #{id}
+    </select>
+
+    <update id="update" parameterType="com.mok.baseframe.entity.ProductEntity">
+        UPDATE product
+        <set>
+            <if test="productName != null">product_name = #{productName},</if>
+            <if test="productDesc != null">product_desc = #{productDesc},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="stock != null">stock = #{stock},</if>
+            <if test="seckillStock != null">seckill_stock = #{seckillStock},</if>
+            <if test="seckillPrice != null">seckill_price = #{seckillPrice},</if>
+            <if test="seckillStartTime != null">seckill_start_time = #{seckillStartTime},</if>
+            <if test="seckillEndTime != null">seckill_end_time = #{seckillEndTime},</if>
+            <if test="status != null">status = #{status},</if>
+            version = version + 1
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="deleteById">
+        UPDATE product SET status = 0 WHERE id = #{id}
+    </update>
+
+    <select id="selectByPage" resultMap="BaseResultMap" parameterType="map">
+        SELECT <include refid="Base_Column_List" />
+        FROM product
+        WHERE 1=1
+        <if test="productName != null and productName != ''">
+            AND product_name LIKE CONCAT('%', #{productName}, '%')
+        </if>
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+        ORDER BY create_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countByPage" resultType="long" parameterType="map">
+        SELECT COUNT(1)
+        FROM product
+        WHERE 1=1
+        <if test="productName != null and productName != ''">
+            AND product_name LIKE CONCAT('%', #{productName}, '%')
+        </if>
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+    </select>
+
+    <!-- 扣减库存，使用乐观锁防止超卖 -->
+    <update id="reduceStock">
+        UPDATE product
+        SET stock = stock - #{quantity},
+            version = version + 1
+        WHERE id = #{id}
+          AND stock >= #{quantity}
+          AND version = #{version}
+    </update>
+
+    <!-- 恢复库存 -->
+    <update id="restoreStock">
+        UPDATE product
+        SET stock = stock + #{quantity},
+            version = version + 1
+        WHERE id = #{id}
+          AND version = #{version}
+    </update>
+
+    <!-- 扣减秒杀库存 -->
+    <update id="reduceSeckillStock">
+        UPDATE product
+        SET seckill_stock = seckill_stock - #{quantity},
+            version = version + 1
+        WHERE id = #{id}
+          AND seckill_stock >= #{quantity}
+          AND version = #{version}
+          AND seckill_start_time &lt;= NOW()
+          AND seckill_end_time >= NOW()
+    </update>
+
+    <!-- 查询秒杀商品列表 -->
+    <select id="selectSeckillProducts" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM product
+        WHERE status = 1
+        AND seckill_stock > 0
+        AND seckill_start_time &lt;= NOW()
+        AND seckill_end_time >= NOW()
+        ORDER BY seckill_start_time
+    </select>
+
+</mapper>

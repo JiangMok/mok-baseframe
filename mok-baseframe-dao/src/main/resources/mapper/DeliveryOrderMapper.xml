@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mok.baseframe.dao.DeliveryOrderMapper">
+
+    <resultMap id="BaseResultMap" type="com.mok.baseframe.entity.DeliveryOrderEntity">
+        <id column="id" property="id" />
+        <result column="delivery_no" property="deliveryNo" />
+        <result column="order_id" property="orderId" />
+        <result column="order_no" property="orderNo" />
+        <result column="user_id" property="userId" />
+        <result column="product_id" property="productId" />
+        <result column="product_name" property="productName" />
+        <result column="quantity" property="quantity" />
+        <result column="receiver_name" property="receiverName" />
+        <result column="receiver_phone" property="receiverPhone" />
+        <result column="receiver_address" property="receiverAddress" />
+        <result column="delivery_status" property="deliveryStatus" />
+        <result column="delivery_company" property="deliveryCompany" />
+        <result column="delivery_number" property="deliveryNumber" />
+        <result column="delivery_time" property="deliveryTime" />
+        <result column="receive_time" property="receiveTime" />
+        <result column="remark" property="remark" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, delivery_no, order_id, order_no, user_id, product_id, product_name, quantity,
+        receiver_name, receiver_phone, receiver_address, delivery_status, delivery_company,
+        delivery_number, delivery_time, receive_time, remark, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.mok.baseframe.entity.DeliveryOrderEntity" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO delivery_order (
+            id,delivery_no, order_id, order_no, user_id, product_id, product_name, quantity,
+            receiver_name, receiver_phone, receiver_address, delivery_status, delivery_company,
+            delivery_number, delivery_time, receive_time, remark
+        ) VALUES (
+                     #{id},#{deliveryNo}, #{orderId}, #{orderNo}, #{userId}, #{productId}, #{productName}, #{quantity},
+                     #{receiverName}, #{receiverPhone}, #{receiverAddress}, #{deliveryStatus}, #{deliveryCompany},
+                     #{deliveryNumber}, #{deliveryTime}, #{receiveTime}, #{remark}
+                 )
+    </insert>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM delivery_order
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectByDeliveryNo" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM delivery_order
+        WHERE delivery_no = #{deliveryNo}
+    </select>
+
+    <select id="selectByOrderId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM delivery_order
+        WHERE order_id = #{orderId}
+    </select>
+
+    <update id="update" parameterType="com.mok.baseframe.entity.DeliveryOrderEntity">
+        UPDATE delivery_order
+        <set>
+            <if test="deliveryStatus != null">delivery_status = #{deliveryStatus},</if>
+            <if test="deliveryCompany != null">delivery_company = #{deliveryCompany},</if>
+            <if test="deliveryNumber != null">delivery_number = #{deliveryNumber},</if>
+            <if test="deliveryTime != null">delivery_time = #{deliveryTime},</if>
+            <if test="receiveTime != null">receive_time = #{receiveTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectByPage" resultMap="BaseResultMap" parameterType="map">
+        SELECT <include refid="Base_Column_List" />
+        FROM delivery_order
+        WHERE 1=1
+        <if test="deliveryNo != null and deliveryNo != ''">
+            AND delivery_no = #{deliveryNo}
+        </if>
+        <if test="orderNo != null and orderNo != ''">
+            AND order_no = #{orderNo}
+        </if>
+        <if test="userId != null">
+            AND user_id = #{userId}
+        </if>
+        <if test="deliveryStatus != null">
+            AND delivery_status = #{deliveryStatus}
+        </if>
+        <if test="startTime != null">
+            AND create_time >= #{startTime}
+        </if>
+        <if test="endTime != null">
+            AND create_time &lt;= #{endTime}
+        </if>
+        ORDER BY create_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countByPage" resultType="long" parameterType="map">
+        SELECT COUNT(1)
+        FROM delivery_order
+        WHERE 1=1
+        <if test="deliveryNo != null and deliveryNo != ''">
+            AND delivery_no = #{deliveryNo}
+        </if>
+        <if test="orderNo != null and orderNo != ''">
+            AND order_no = #{orderNo}
+        </if>
+        <if test="userId != null">
+            AND user_id = #{userId}
+        </if>
+        <if test="deliveryStatus != null">
+            AND delivery_status = #{deliveryStatus}
+        </if>
+        <if test="startTime != null">
+            AND create_time >= #{startTime}
+        </if>
+        <if test="endTime != null">
+            AND create_time &lt;= #{endTime}
+        </if>
+    </select>
+
+    <!-- 更新发货状态（带乐观锁） -->
+    <update id="updateDeliveryStatus">
+        UPDATE delivery_order
+        SET delivery_status = #{newStatus},
+        <if test="deliveryCompany != null">delivery_company = #{deliveryCompany},</if>
+        <if test="deliveryNumber != null">delivery_number = #{deliveryNumber},</if>
+        <if test="deliveryTime != null">delivery_time = #{deliveryTime},</if>
+        update_time = NOW()
+        WHERE id = #{id}
+        AND delivery_status = #{oldStatus}
+    </update>
+
+    <!-- 更新收货状态（带乐观锁） -->
+    <update id="updateReceiveStatus">
+        UPDATE delivery_order
+        SET delivery_status = #{newStatus},
+        <if test="receiveTime != null">receive_time = #{receiveTime},</if>
+        update_time = NOW()
+        WHERE id = #{id}
+        AND delivery_status = #{oldStatus}
+    </update>
+
+</mapper>

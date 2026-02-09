@@ -7,8 +7,8 @@ import java.util.Objects;
 @TableName("sys_file")
 public class FileEntity {
     
-    @TableId(value = "file_id", type = IdType.ASSIGN_UUID)
-    private String fileId;
+    @TableId(value = "id", type = IdType.ASSIGN_UUID)
+    private String id;
     
     @TableField("original_name")
     private String originalName;
@@ -39,6 +39,9 @@ public class FileEntity {
     
     @TableField("download_count")
     private Integer downloadCount = 0;
+
+    @TableField("business_type")
+    private Integer businessType = 0;
     
     @TableField("status")
     private Integer status = 1; // 1-正常，0-删除
@@ -62,14 +65,24 @@ public class FileEntity {
     }
     
     // Getter 和 Setter 方法
-    public String getFileId() {
-        return fileId;
+
+
+    public Integer getBusinessType() {
+        return businessType;
     }
-    
-    public void setFileId(String fileId) {
-        this.fileId = fileId;
+
+    public void setBusinessType(Integer businessType) {
+        this.businessType = businessType;
     }
-    
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String getOriginalName() {
         return originalName;
     }
@@ -208,7 +221,7 @@ public class FileEntity {
             return false;
         }
         FileEntity that = (FileEntity) o;
-        return Objects.equals(fileId, that.fileId) &&
+        return Objects.equals(id, that.id) &&
                 Objects.equals(originalName, that.originalName) &&
                 Objects.equals(storageName, that.storageName) &&
                 Objects.equals(filePath, that.filePath) &&
@@ -220,6 +233,7 @@ public class FileEntity {
                 Objects.equals(uploadIp, that.uploadIp) &&
                 Objects.equals(downloadCount, that.downloadCount) &&
                 Objects.equals(status, that.status) &&
+                Objects.equals(businessType, that.businessType) &&
                 Objects.equals(createTime, that.createTime) &&
                 Objects.equals(updateTime, that.updateTime) &&
                 Objects.equals(createBy, that.createBy) &&
@@ -229,15 +243,15 @@ public class FileEntity {
     
     @Override
     public int hashCode() {
-        return Objects.hash(fileId, originalName, storageName, filePath, fileUrl, fileSize, fileType, mimeType, 
-                uploadUserId, uploadIp, downloadCount, status, createTime, updateTime, createBy, updateBy, isDeleted);
+        return Objects.hash(id, originalName, storageName, filePath, fileUrl, fileSize, fileType, mimeType,
+                uploadUserId, uploadIp, downloadCount, status, businessType,createTime, updateTime, createBy, updateBy, isDeleted);
     }
     
     // toString 方法
     @Override
     public String toString() {
         return "FileEntity{" +
-                "fileId='" + fileId + '\'' +
+                "id='" + id + '\'' +
                 ", originalName='" + originalName + '\'' +
                 ", storageName='" + storageName + '\'' +
                 ", filePath='" + filePath + '\'' +
@@ -249,6 +263,7 @@ public class FileEntity {
                 ", uploadIp='" + uploadIp + '\'' +
                 ", downloadCount=" + downloadCount +
                 ", status=" + status +
+                ", businessType=" + businessType +
                 ", createTime=" + createTime +
                 ", updateTime=" + updateTime +
                 ", createBy='" + createBy + '\'' +

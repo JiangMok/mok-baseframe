@@ -50,6 +50,10 @@
         </dependency>
         <dependency>
             <groupId>com.mok</groupId>
+            <artifactId>mok-baseframe-order</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.mok</groupId>
             <artifactId>mok-baseframe-mq</artifactId>
         </dependency>
         <!-- Swagger -->

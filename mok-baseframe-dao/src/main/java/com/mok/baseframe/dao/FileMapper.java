@@ -14,10 +14,10 @@ import java.util.List;
 public interface FileMapper extends BaseMapper<FileEntity> {
     
     /**
-     * 更新下载次数
+     * 更新下载次数 >>> 注解写 sql
      */
-    @Update("UPDATE sys_file SET download_count = download_count + 1, update_time = NOW() WHERE file_id = #{fileId}")
-    int incrementDownloadCount(@Param("fileId") String fileId);
+    @Update("UPDATE sys_file SET download_count = download_count + 1, update_time = NOW() WHERE id = #{id}")
+    int incrementDownloadCount(@Param("id") String id);
     
     /**
      * 批量逻辑删除
