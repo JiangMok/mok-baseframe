@@ -30,14 +30,12 @@ import java.util.Arrays;
  * @author: JN
  * @date: 2025/12/31
  */
-//声明这是一个spring配置类
+//声明这是一个spring 配置类
 @Configuration
 //启用spring Security的web安全支持
 @EnableWebSecurity
 //启用方法级别的安全控制
 @EnableMethodSecurity
-//lombok注解,为final字段生成构造器
-
 public class SecurityConfig {
 
     //自定义JWT认证过滤器

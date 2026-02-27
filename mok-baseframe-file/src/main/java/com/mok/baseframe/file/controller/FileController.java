@@ -37,7 +37,7 @@ public class FileController {
 
 
     /**
-     * @description: 分页查询角色列表
+     * @description: 分页查询文件信息列表
      * @author: JN
      * @date: 2026/1/5 16:50
      * @param: [param]

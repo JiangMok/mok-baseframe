@@ -2,6 +2,7 @@ package com.mok.baseframe.ratelimiter.enums;
 
 /**
  * 限流类型枚举
+ * @author aha13
  */
 public enum RateLimitType {
     

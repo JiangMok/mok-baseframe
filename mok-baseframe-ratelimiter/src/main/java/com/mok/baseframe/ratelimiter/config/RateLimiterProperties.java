@@ -5,8 +5,11 @@ import org.springframework.stereotype.Component;
 
 /**
  * 限流模块属性配置
+ * @author aha13
  */
+// 注册为spring bean
 @Component
+// 绑定配置文件中以 mok.ratelimiter 开头的属性
 @ConfigurationProperties(prefix = "mok.ratelimiter")
 public class RateLimiterProperties {
     

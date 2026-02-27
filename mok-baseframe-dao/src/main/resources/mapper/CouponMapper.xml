@@ -61,9 +61,12 @@
         WHERE id = #{id}
     </update>
 
-    <update id="deleteById">
-        UPDATE coupon SET status = 0 WHERE id = #{id}
-    </update>
+<!--    <update id="deleteById">-->
+<!--        UPDATE coupon SET status = 0 WHERE id = #{id}-->
+<!--    </update>-->
+    <delete id="deleteById">
+        DELETE FROM coupon WHERE id = #{id}
+    </delete>
 
     <select id="selectByPage" resultMap="BaseResultMap" parameterType="com.mok.baseframe.common.PageParam">
         SELECT <include refid="Base_Column_List" />
@@ -134,6 +137,31 @@
         AND start_time &lt;= NOW()
         AND end_time >= NOW()
         ORDER BY start_time DESC
+    </select>
+
+    <select id="getByProductId" resultMap="BaseResultMap">
+        SELECT
+            c.id,
+            c.coupon_name,
+            c.coupon_type,
+            c.threshold_amount,
+            c.discount_amount,
+            c.discount_rate,
+            c.total_quantity,
+            c.remaining_quantity,
+            c.per_limit,
+            c.start_time,
+            c.end_time,
+            c.STATUS,
+            c.version,
+            c.create_time,
+            c.update_time
+        FROM
+            coupon c
+                left join product_coupon pc on c.id=pc.coupon_id
+        WHERE pc.product_id = #{productId}
+        ORDER BY
+            c.create_time DESC
     </select>
 
 </mapper>

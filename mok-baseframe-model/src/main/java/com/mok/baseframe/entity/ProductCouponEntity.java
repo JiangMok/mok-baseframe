@@ -14,6 +14,15 @@ public class ProductCouponEntity {
     private String productId;
     private String couponId;
     private Date createTime;
+    private String[] couponIds;
+
+    public String[] getCouponIds() {
+        return couponIds;
+    }
+
+    public void setCouponIds(String[] couponIds) {
+        this.couponIds = couponIds;
+    }
 
     @Override
     public boolean equals(Object o) {

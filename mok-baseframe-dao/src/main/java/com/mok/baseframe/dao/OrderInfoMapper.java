@@ -1,4 +1,5 @@
 package com.mok.baseframe.dao;
+import com.mok.baseframe.common.PageParam;
 import com.mok.baseframe.entity.OrderInfoEntity;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -27,10 +28,10 @@ public interface OrderInfoMapper {
     int update(OrderInfoEntity order);
 
     // 分页查询订单列表
-    List<OrderInfoEntity> selectByPage(Map<String, Object> params);
+    List<OrderInfoEntity> selectByPage(PageParam params);
 
     // 查询订单总数
-    Long countByPage(Map<String, Object> params);
+    Long countByPage(PageParam params);
 
     // 更新订单状态
     int updateOrderStatus(@Param("id") String id,

@@ -1,12 +1,18 @@
 package com.mok.baseframe.order.controller;
 
 import com.mok.baseframe.common.R;
+import com.mok.baseframe.core.annotation.OperationLog;
+import com.mok.baseframe.enums.BusinessType;
 import com.mok.baseframe.order.service.SeckillService;
 import com.mok.baseframe.utils.SecurityUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/seckill")
+@RequestMapping("/seckill")
+@Tag(name = "秒杀管理", description = "秒杀相关接口")
 public class SeckillController {
 
     private final SeckillService seckillService;
@@ -21,10 +27,13 @@ public class SeckillController {
     /**
      * 秒杀下单
      */
+    @Operation(summary = "秒杀下单")
+    @OperationLog(title = "秒杀下单", businessType = BusinessType.INSERT)
     @PostMapping("/order")
-    public R<String> seckillOrder(@RequestParam String productId,
-                                  @RequestParam Integer quantity,
-                                  @RequestParam(required = false) String verifyCode) {
+    @PreAuthorize("@permissionChecker.hasPermission('order:seckill:order')")
+    public R<String> seckillOrder(@RequestParam("productId") String productId,
+                                  @RequestParam("quantity") Integer quantity,
+                                  @RequestParam(name = "verifyCode", required = false) String verifyCode) {
         String userId = securityUtils.getCurrentUserId();
 
         // 验证码校验（如果提供了验证码）
@@ -41,8 +50,11 @@ public class SeckillController {
     /**
      * 获取秒杀验证码
      */
+    @Operation(summary = "获取秒杀验证码")
+    @OperationLog(title = "获取秒杀验证码", businessType = BusinessType.INSERT)
+    @PreAuthorize("@permissionChecker.hasPermission('order:seckill:code')")
     @GetMapping("/verify/code")
-    public R<String> getSeckillVerifyCode(@RequestParam String productId) {
+    public R<String> getSeckillVerifyCode(@RequestParam("productId") String productId) {
         String userId = securityUtils.getCurrentUserId();
         return seckillService.getSeckillVerifyCode(userId, productId);
     }
@@ -50,6 +62,9 @@ public class SeckillController {
     /**
      * 初始化秒杀库存（管理员操作）
      */
+    @Operation(summary = "初始化秒杀库存")
+    @OperationLog(title = "初始化秒杀库存", businessType = BusinessType.INSERT)
+    @PreAuthorize("@permissionChecker.hasPermission('order:seckill:order')")
     @PostMapping("/init/stock")
     public R<String> initSeckillStock() {
         seckillService.initSeckillStockToRedis();

@@ -14,9 +14,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -82,6 +80,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateProduct(ProductEntity product) {
+        logger.info("******************************************** updateProduct");
         try {
             ProductEntity oldProduct = productMapper.selectById(product.getId());
             if (oldProduct == null) {
@@ -112,6 +111,16 @@ public class ProductServiceImpl implements ProductService {
             logger.error("更新商品失败：{}", e.getMessage(), e);
             throw e;
         }
+    }
+
+    @Override
+    public void setSeckill(ProductEntity product) {
+        productMapper.update(product);
+    }
+
+    @Override
+    public void clearSeckill(String id) {
+        productMapper.clearSeckill(id);
     }
 
     @Override
@@ -162,16 +171,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public PageResult<ProductEntity> getProductList(PageParam pageParam, String productName, Integer status) {
+    public PageResult<ProductEntity> getProductList(PageParam pageParam) {
         try {
-            Map<String, Object> params = new HashMap<>();
-            params.put("productName", productName);
-            params.put("status", status);
-            params.put("offset", pageParam.getOffset());
-            params.put("limit", pageParam.getPageSize());
-
-            List<ProductEntity> list = productMapper.selectByPage(params);
-            long total = productMapper.countByPage(params);
+            List<ProductEntity> list = productMapper.selectByPage(pageParam);
+            long total = productMapper.countByPage(pageParam);
 
             return PageResult.success(list, total, pageParam.getPageNum(), pageParam.getPageSize());
         } catch (Exception e) {
@@ -185,9 +188,9 @@ public class ProductServiceImpl implements ProductService {
     public boolean reduceStock(String productId, Integer quantity) {
         try {
             // 1. 先从Redis预减库存
-            String stockKey = RedisKeyUtil.getProductStockKey(productId);
+//            String stockKey = RedisKeyUtil.getProductStockKey(productId);
+            String stockKey = RedisKeyUtil.getSeckillStockKey(productId);
             Long stock = redisTemplate.opsForValue().decrement(stockKey, quantity);
-
             if (stock != null && stock >= 0) {
                 // Redis预减库存成功
                 try {
@@ -212,6 +215,7 @@ public class ProductServiceImpl implements ProductService {
                     throw e;
                 }
             } else {
+
                 // Redis库存不足，恢复刚才的扣减
                 if (stock != null && stock < 0) {
                     redisTemplate.opsForValue().increment(stockKey, quantity);
@@ -265,13 +269,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void initProductStockToRedis() {
         try {
-            // 查询所有上架商品
-            Map<String, Object> params = new HashMap<>();
-            params.put("status", 1);
-            params.put("offset", 0);
-            params.put("limit", 1000);
-
-            List<ProductEntity> products = productMapper.selectByPage(params);
+            List<ProductEntity> products = productMapper.selectAllUpProduct();
             for (ProductEntity product : products) {
                 String stockKey = RedisKeyUtil.getProductStockKey(product.getId());
                 redisTemplate.opsForValue().set(stockKey, product.getStock());

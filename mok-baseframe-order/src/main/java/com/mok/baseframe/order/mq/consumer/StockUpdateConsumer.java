@@ -1,5 +1,6 @@
 package com.mok.baseframe.order.mq.consumer;
 
+import cn.hutool.core.util.IdUtil;
 import com.mok.baseframe.dao.InventoryLogMapper;
 import com.mok.baseframe.dao.ProductMapper;
 import com.mok.baseframe.entity.InventoryLogEntity;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class StockUpdateConsumer {
@@ -154,6 +156,7 @@ public class StockUpdateConsumer {
 
                     // 记录库存流水
                     InventoryLogEntity inventoryLog = new InventoryLogEntity();
+                    inventoryLog.setId(IdUtil.simpleUUID());
                     inventoryLog.setProductId(productId);
                     inventoryLog.setOrderId(orderId);
                     inventoryLog.setOrderNo(orderNo);
@@ -223,6 +226,7 @@ public class StockUpdateConsumer {
 
                 // 记录同步日志
                 InventoryLogEntity inventoryLog = new InventoryLogEntity();
+                inventoryLog.setId(IdUtil.simpleUUID());
                 inventoryLog.setProductId(productId);
                 inventoryLog.setChangeType(5); // 5表示库存同步
                 inventoryLog.setChangeQuantity(dbStock - redisStock);
@@ -246,9 +250,22 @@ public class StockUpdateConsumer {
             if (isSeckill) {
                 String seckillKey = RedisKeyUtil.getSeckillStockKey(productId);
                 redisTemplate.opsForValue().set(seckillKey, stock);
+                // 重新设置过期时间为秒杀结束时间
+                ProductEntity product = productMapper.selectById(productId);
+                if (product != null && product.getSeckillEndTime() != null) {
+                    long ttl = product.getSeckillEndTime().getTime() - System.currentTimeMillis();
+                    if (ttl > 0) {
+                        redisTemplate.expire(seckillKey, ttl, TimeUnit.MILLISECONDS);
+                    } else {
+                        // 如果秒杀已结束，可以立即删除该 Key 或设置一个很短的过期时间
+                        redisTemplate.expire(seckillKey, 1, TimeUnit.SECONDS);
+                    }
+                }
             } else {
                 String stockKey = RedisKeyUtil.getProductStockKey(productId);
                 redisTemplate.opsForValue().set(stockKey, stock);
+                // 普通库存可以保留默认过期时间（例如7天），但建议也恢复原来的 TTL
+                // 可以查询之前设置的过期时间（例如从配置或数据库获取），此处简化处理
             }
         } catch (Exception e) {
             logger.error("更新Redis库存失败，商品ID：{}，异常：{}", productId, e.getMessage(), e);

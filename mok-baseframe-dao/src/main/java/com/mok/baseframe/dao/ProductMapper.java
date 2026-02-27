@@ -1,5 +1,6 @@
 package com.mok.baseframe.dao;
 
+import com.mok.baseframe.common.PageParam;
 import com.mok.baseframe.entity.ProductEntity;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -23,14 +24,20 @@ public interface ProductMapper {
     // 更新商品信息
     int update(ProductEntity product);
 
+    //清空秒杀设置
+    int clearSeckill(String id);
+
     // 删除商品（逻辑删除）
     int deleteById(String id);
 
     // 分页查询商品列表
-    List<ProductEntity> selectByPage(Map<String, Object> params);
+    List<ProductEntity> selectByPage(PageParam pageParam);
+
+    //查询所有商家商品
+    List<ProductEntity> selectAllUpProduct();
 
     // 查询商品总数
-    long countByPage(Map<String, Object> params);
+    long countByPage(PageParam pageParam);
 
     // 扣减库存（带乐观锁）
     int reduceStock(@Param("id") String id, @Param("quantity") Integer quantity, @Param("version") Integer version);

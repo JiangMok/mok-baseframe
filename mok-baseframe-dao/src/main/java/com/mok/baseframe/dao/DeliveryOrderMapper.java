@@ -1,5 +1,6 @@
 package com.mok.baseframe.dao;
 
+import com.mok.baseframe.common.PageParam;
 import com.mok.baseframe.entity.DeliveryOrderEntity;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -29,10 +30,10 @@ public interface DeliveryOrderMapper {
     int update(DeliveryOrderEntity deliveryOrder);
 
     // 分页查询发货单列表
-    List<DeliveryOrderEntity> selectByPage(Map<String, Object> params);
+    List<DeliveryOrderEntity> selectByPage(PageParam params);
 
     // 查询发货单总数
-    long countByPage(Map<String, Object> params);
+    long countByPage(PageParam params);
 
     // 更新发货状态
     int updateDeliveryStatus(@Param("id") String id,

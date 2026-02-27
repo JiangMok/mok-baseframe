@@ -26,7 +26,6 @@ import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/system")
-
 @Tag(name = "系统管理", description = "系统相关接口")
 public class SystemController {
 

@@ -78,59 +78,59 @@
         WHERE id = #{id}
     </update>
 
-    <select id="selectByPage" resultMap="BaseResultMap" parameterType="map">
+    <select id="selectByPage" resultMap="BaseResultMap" parameterType="com.mok.baseframe.common.PageParam">
         SELECT <include refid="Base_Column_List" />
         FROM order_info
         WHERE 1=1
-        <if test="orderNo != null and orderNo != ''">
-            AND order_no = #{orderNo}
+        <if test="params.orderNo != null and params.orderNo != ''">
+            AND order_no = #{params.orderNo}
         </if>
-        <if test="userId != null">
-            AND user_id = #{userId}
+        <if test="params.userId != null">
+            AND user_id = #{params.userId}
         </if>
-        <if test="productName != null and productName != ''">
-            AND product_name LIKE CONCAT('%', #{productName}, '%')
+        <if test="params.productName != null and params.productName != ''">
+            AND product_name LIKE CONCAT('%', #{params.productName}, '%')
         </if>
-        <if test="orderStatus != null">
-            AND order_status = #{orderStatus}
+        <if test="params.orderStatus != null">
+            AND order_status = #{params.orderStatus}
         </if>
-        <if test="payStatus != null">
-            AND pay_status = #{payStatus}
+        <if test="params.payStatus != null">
+            AND pay_status = #{params.payStatus}
         </if>
-        <if test="startTime != null">
-            AND create_time >= #{startTime}
+        <if test="params.startTime != null">
+            AND create_time >= #{params.startTime}
         </if>
-        <if test="endTime != null">
-            AND create_time &lt;= #{endTime}
+        <if test="params.endTime != null">
+            AND create_time &lt;= #{params.endTime}
         </if>
         ORDER BY create_time DESC
-        LIMIT #{offset}, #{limit}
+        LIMIT #{offset}, #{pageSize}
     </select>
 
-    <select id="countByPage" resultType="long" parameterType="map">
+    <select id="countByPage" resultType="long" parameterType="com.mok.baseframe.common.PageParam">
         SELECT COUNT(1)
         FROM order_info
         WHERE 1=1
-        <if test="orderNo != null and orderNo != ''">
-            AND order_no = #{orderNo}
+        <if test="params.orderNo != null and params.orderNo != ''">
+            AND order_no = #{params.orderNo}
         </if>
-        <if test="userId != null">
-            AND user_id = #{userId}
+        <if test="params.userId != null">
+            AND user_id = #{params.userId}
         </if>
-        <if test="productName != null and productName != ''">
-            AND product_name LIKE CONCAT('%', #{productName}, '%')
+        <if test="params.productName != null and params.productName != ''">
+            AND product_name LIKE CONCAT('%', #{params.productName}, '%')
         </if>
-        <if test="orderStatus != null">
-            AND order_status = #{orderStatus}
+        <if test="params.orderStatus != null">
+            AND order_status = #{params.orderStatus}
         </if>
-        <if test="payStatus != null">
-            AND pay_status = #{payStatus}
+        <if test="params.payStatus != null">
+            AND pay_status = #{params.payStatus}
         </if>
-        <if test="startTime != null">
-            AND create_time >= #{startTime}
+        <if test="params.startTime != null">
+            AND create_time >= #{params.startTime}
         </if>
-        <if test="endTime != null">
-            AND create_time &lt;= #{endTime}
+        <if test="params.endTime != null">
+            AND create_time &lt;= #{params.endTime}
         </if>
     </select>
 

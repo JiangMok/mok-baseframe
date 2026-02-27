@@ -1,5 +1,6 @@
 package com.mok.baseframe.order.mq.consumer;
 
+import cn.hutool.core.util.IdUtil;
 import com.mok.baseframe.dao.DeliveryOrderMapper;
 import com.mok.baseframe.dao.OrderInfoMapper;
 import com.mok.baseframe.entity.DeliveryOrderEntity;
@@ -46,12 +47,16 @@ public class OrderPayConsumer {
             }
 
             // 2. 更新订单状态为已发货（这里简化处理，实际可能需要仓库系统处理）
-            order.setOrderStatus(3); // 已发货
-            order.setDeliveryTime(new Date());
-            orderInfoMapper.update(order);
+            // 已支付
+            OrderInfoEntity orderToUpdateOrderStatus = new OrderInfoEntity();
+            orderToUpdateOrderStatus.setId(order.getId());
+            orderToUpdateOrderStatus.setOrderStatus(1);
+            orderToUpdateOrderStatus.setDeliveryTime(new Date());
+            orderInfoMapper.update(orderToUpdateOrderStatus);
 
             // 3. 创建发货单
             DeliveryOrderEntity deliveryOrder = new DeliveryOrderEntity();
+            deliveryOrder.setId(IdUtil.simpleUUID());
             deliveryOrder.setDeliveryNo(OrderNoGenerator.generateDeliveryNo());
             deliveryOrder.setOrderId(order.getId());
             deliveryOrder.setOrderNo(orderNo);
@@ -59,13 +64,12 @@ public class OrderPayConsumer {
             deliveryOrder.setProductId(order.getProductId());
             deliveryOrder.setProductName(order.getProductName());
             deliveryOrder.setQuantity(order.getQuantity());
-            deliveryOrder.setReceiverName("默认收货人"); // 实际应从用户地址表获取
+            // 实际应从用户地址表获取
+            deliveryOrder.setReceiverName("默认收货人");
             deliveryOrder.setReceiverPhone("13800138000");
             deliveryOrder.setReceiverAddress("默认收货地址");
-            deliveryOrder.setDeliveryStatus(1); // 已发货
-            deliveryOrder.setDeliveryCompany("默认物流公司");
-            deliveryOrder.setDeliveryNumber("DL" + System.currentTimeMillis());
-            deliveryOrder.setDeliveryTime(new Date());
+            // 未发货
+            deliveryOrder.setDeliveryStatus(0);
 
             deliveryOrderMapper.insert(deliveryOrder);
 

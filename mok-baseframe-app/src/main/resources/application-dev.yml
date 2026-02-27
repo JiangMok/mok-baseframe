@@ -6,14 +6,14 @@ spring:
   # 数据源配置 - 开发环境数据库
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver  # MySQL驱动类
-    url: jdbc:mysql://192.168.77.131:3306/security_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai  # 数据库连接URL
+    url: jdbc:mysql://192.168.77.134:3306/security_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai  # 数据库连接URL
     username: root  # 数据库用户名
     password: 123456  # 数据库密码
 
   # Redis配置 - 开发环境缓存
   data:
     redis:
-      host: 192.168.77.131  # Redis服务器地址
+      host: 192.168.77.134  # Redis服务器地址
       port: 6379            # Redis端口号
       password: 123456      # Redis访问密码
       database: 1           # Redis数据库索引（0-15）
@@ -26,7 +26,7 @@ spring:
           min-idle: 0       # 最小空闲连接数
   rabbitmq:
     # 基础连接配置
-    host: 192.168.77.131             # RabbitMQ服务器地址（开发环境使用本地）
+    host: 192.168.77.134             # RabbitMQ服务器地址（开发环境使用本地）
     port: 5672                 # RabbitMQ端口（默认5672）
     username: admin            # 用户名（默认guest）
     password: 123456            # 密码（默认guest）
@@ -83,6 +83,8 @@ mybatis-plus:
 jwt:
   secret: security-framework-secret-key-2024-01-01-change-in-production  # JWT加密密钥（开发环境可简单，生产环境必须复杂）
   token-expire: 7200000      # 访问令牌过期时间：2小时（毫秒）
+#  token-expire: 432000000      # 访问令牌过期时间：12小时（毫秒） 开发环境
+#  token-expire: 30000      # 访问令牌过期时间：2分钟（毫秒）
   refresh-token-expire: 604800000  # 刷新令牌过期时间：7天（毫秒）
   header: Authorization      # JWT在HTTP头中的字段名
   prefix: Bearer             # JWT前缀

@@ -56,33 +56,73 @@
         WHERE id = #{id}
     </update>
 
+    <update id="clearSeckill">
+        UPDATE product
+        SET seckill_stock = NULL,
+            seckill_price = NULL,
+            seckill_start_time = NULL,
+            seckill_end_time = NULL,
+            version = version + 1
+        WHERE id = #{id}
+    </update>
+
     <update id="deleteById">
         UPDATE product SET status = 0 WHERE id = #{id}
     </update>
 
-    <select id="selectByPage" resultMap="BaseResultMap" parameterType="map">
+    <select id="selectByPage" resultMap="BaseResultMap" parameterType="com.mok.baseframe.common.PageParam">
         SELECT <include refid="Base_Column_List" />
         FROM product
         WHERE 1=1
-        <if test="productName != null and productName != ''">
-            AND product_name LIKE CONCAT('%', #{productName}, '%')
+        <if test="params.productName != null and params.productName != ''">
+            AND product_name LIKE CONCAT('%', #{params.productName}, '%')
         </if>
-        <if test="status != null">
-            AND status = #{status}
+        <if test="params.status != null">
+            AND status = #{params.status}
+        </if>
+        <if test="params.minPrice != null">
+            AND price &gt;=  #{params.minPrice} # 大于等于
+        </if>
+        <if test="params.maxPrice != null">
+            AND price &lt;=  #{params.maxPrice} # 小于等于
+        </if>
+        <if test="params.minStock != null">
+            AND stock &gt;=  #{params.minStock} # 大于等于
+        </if>
+        <if test="params.maxStock != null">
+            AND stock &lt;=  #{params.maxStock} # 小于等于
         </if>
         ORDER BY create_time DESC
-        LIMIT #{offset}, #{limit}
+        LIMIT #{offset}, #{pageSize}
+    </select>
+    <select id="selectAllUpProduct" resultMap="BaseResultMap" >
+        SELECT <include refid="Base_Column_List" />
+        FROM product
+        WHERE status = 1
+        ORDER BY create_time DESC
     </select>
 
-    <select id="countByPage" resultType="long" parameterType="map">
+    <select id="countByPage" resultType="long" parameterType="com.mok.baseframe.common.PageParam">
         SELECT COUNT(1)
         FROM product
         WHERE 1=1
-        <if test="productName != null and productName != ''">
-            AND product_name LIKE CONCAT('%', #{productName}, '%')
+        <if test="params.productName != null and params.productName != ''">
+            AND product_name LIKE CONCAT('%', #{params.productName}, '%')
         </if>
-        <if test="status != null">
-            AND status = #{status}
+        <if test="params.status != null">
+            AND status = #{params.status}
+        </if>
+        <if test="params.minPrice != null">
+            AND price &gt;=  #{params.minPrice} # 大于等于
+        </if>
+        <if test="params.maxPrice != null">
+            AND price &lt;=  #{params.maxPrice} # 小于等于
+        </if>
+        <if test="params.minStock != null">
+            AND stock &gt;=  #{params.minStock} # 大于等于
+        </if>
+        <if test="params.maxStock != null">
+            AND stock &lt;=  #{params.maxStock} # 小于等于
         </if>
     </select>
 

@@ -1,0 +1,66 @@
+# 订单模块配置
+order:
+  # 订单超时时间（分钟）
+  timeout: 30
+  # 秒杀配置
+  seckill:
+    # 用户秒杀限流时间（秒）
+    user-limit: 5
+    # 验证码有效期（秒）
+    verify-code-expire: 60
+    # 秒杀预热时间（提前加载库存到Redis）
+    preheat-before: 600 # 秒杀开始前10分钟预热
+
+  # 库存配置
+  inventory:
+    # Redis预减库存开关
+    redis-pre-reduce: true
+    # 数据库库存同步延迟（毫秒）
+    sync-delay: 1000
+    # 库存告警阈值
+    warning-threshold: 10
+
+  # 优惠券配置
+  coupon:
+    # 抢券限流（秒）
+    grab-limit: 3
+    # 自动清理过期优惠券（每天凌晨2点）
+    auto-clean-cron: "0 0 2 * * ?"
+
+  # 发货配置
+  delivery:
+    # 自动发货延迟（秒）- 支付成功后延迟发货，用于测试
+    auto-ship-delay: 10
+    # 自动确认收货时间（天）
+    auto-receive-days: 7
+
+# 消息队列配置
+mq:
+  order:
+    # 订单取消延迟队列
+    cancel:
+      exchange: order.cancel.exchange
+      queue: order.cancel.queue
+      routing-key: order.cancel
+      ttl: 1800000 # 30分钟
+    # 订单支付成功队列
+    pay:
+      exchange: order.pay.exchange
+      queue: order.pay.queue
+      routing-key: order.pay
+    # 库存更新队列
+    stock:
+      exchange: stock.update.exchange
+      queue: stock.update.queue
+      routing-key: stock.update
+
+# Redis缓存配置
+cache:
+  # 商品库存缓存时间（小时）
+  product-stock-ttl: 24
+  # 秒杀库存缓存时间（跟随活动结束时间）
+  seckill-stock-ttl: follow-endtime
+  # 优惠券库存缓存时间（跟随优惠券结束时间）
+  coupon-stock-ttl: follow-endtime
+  # 订单支付状态缓存时间（小时）
+  order-pay-status-ttl: 1

@@ -40,4 +40,6 @@ public interface CouponMapper {
 
     // 查询可用的优惠券列表
     List<CouponEntity> selectAvailableCoupons();
+
+    List<CouponEntity> getByProductId(@Param("productId")String productId);
 }

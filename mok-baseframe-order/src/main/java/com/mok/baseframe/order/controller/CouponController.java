@@ -1,15 +1,18 @@
 package com.mok.baseframe.order.controller;
 
+import cn.hutool.core.util.IdUtil;
 import com.mok.baseframe.common.PageParam;
 import com.mok.baseframe.common.PageResult;
 import com.mok.baseframe.common.R;
 import com.mok.baseframe.core.annotation.OperationLog;
 import com.mok.baseframe.entity.CouponEntity;
+import com.mok.baseframe.entity.ProductCouponEntity;
 import com.mok.baseframe.entity.UserCouponEntity;
 import com.mok.baseframe.enums.BusinessType;
 import com.mok.baseframe.order.service.CouponService;
 import com.mok.baseframe.utils.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +21,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/coupon")
+@Tag(name = "优惠券管理", description = "优惠券相关接口")
 public class CouponController {
 
     private final CouponService couponService;
@@ -32,11 +36,13 @@ public class CouponController {
     /**
      * 添加优惠券
      */
+
     @Operation(summary = "添加优惠券")
     @OperationLog(title = "添加优惠券", businessType = BusinessType.INSERT)
     @PostMapping("/add")
     @PreAuthorize("@permissionChecker.hasPermission('order:coupon:add')")
     public R<String> addCoupon(@RequestBody CouponEntity coupon) {
+        coupon.setId(IdUtil.simpleUUID());
         couponService.addCoupon(coupon);
         return R.ok("添加优惠券成功");
     }
@@ -47,7 +53,7 @@ public class CouponController {
     @Operation(summary = "更新优惠券")
     @OperationLog(title = "更新优惠券", businessType = BusinessType.UPDATE)
     @PostMapping("/update")
-    @PreAuthorize("@permissionChecker.hasPermission('order:coupon:update')")
+    @PreAuthorize("@permissionChecker.hasPermission('order:coupon:edit')")
     public R<String> updateCoupon(@RequestBody CouponEntity coupon) {
         couponService.updateCoupon(coupon);
         return R.ok("更新优惠券成功");
@@ -60,7 +66,7 @@ public class CouponController {
     @OperationLog(title = "删除优惠券", businessType = BusinessType.INSERT)
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("@permissionChecker.hasPermission('order:coupon:delete')")
-    public R<String> deleteCoupon(@PathVariable String id) {
+    public R<String> deleteCoupon(@PathVariable("id") String id) {
         couponService.deleteCoupon(id);
         return R.ok("删除优惠券成功");
     }
@@ -81,7 +87,7 @@ public class CouponController {
      */
     @Operation(summary = "分页查询优惠券")
     @OperationLog(title = "分页查询优惠券列表", businessType = BusinessType.QUERY)
-    @GetMapping("/list")
+    @PostMapping("/list")
     public R<PageResult<CouponEntity>> getCouponList(@RequestBody @Valid PageParam pageParam) {
         PageResult<CouponEntity> result =
                 couponService.getCouponList(pageParam);
@@ -94,8 +100,10 @@ public class CouponController {
     @Operation(summary = "抢优惠券")
     @OperationLog(title = "抢优惠券", businessType = BusinessType.INSERT)
     @PostMapping("/grab/{couponId}")
-    public R<String> grabCoupon(@PathVariable String couponId) {
-        String userId = securityUtils.getCurrentUserId();
+    @PreAuthorize("@permissionChecker.hasPermission('system:coupon:grab')")
+    public R<String> grabCoupon(@PathVariable("couponId") String couponId) {
+//        String userId = securityUtils.getCurrentUserId();
+        String userId = IdUtil.simpleUUID();
         boolean success = couponService.grabCoupon(userId, couponId);
         if (success) {
             return R.ok("抢券成功");
@@ -107,6 +115,7 @@ public class CouponController {
     /**
      * 查询用户优惠券
      */
+    @Operation(summary = "查询用户优惠券")
     @GetMapping("/user/list")
     public R<List<UserCouponEntity>> getUserCoupons(
             @RequestParam(required = false) Integer status) {
@@ -118,6 +127,7 @@ public class CouponController {
     /**
      * 获取可用优惠券列表
      */
+    @Operation(summary = "获取可用优惠券")
     @GetMapping("/available/list")
     public R<List<CouponEntity>> getAvailableCoupons() {
         List<CouponEntity> coupons = couponService.getAvailableCoupons();
@@ -146,5 +156,27 @@ public class CouponController {
     public R<String> cleanExpiredCoupons() {
         couponService.cleanExpiredCoupons();
         return R.ok("清理过期优惠券成功");
+    }
+
+    /**
+     * 获取某一商品的拥有的优惠券
+     */
+    @Operation(summary = "获取某一商品的拥有的优惠券")
+    @OperationLog(title = "获取某一商品的拥有的优惠券", businessType = BusinessType.QUERY)
+    @GetMapping("/getCoupons/{productID}")
+    public R<List<CouponEntity>> getByProductId(@PathVariable("productID")String productId){
+        return R.ok(couponService.getByProductId(productId));
+    }
+
+    /**
+     * 抢优惠券
+     */
+    @Operation(summary = "给商品分配优惠券")
+    @OperationLog(title = "给商品分配优惠券", businessType = BusinessType.INSERT)
+    @PostMapping("/saveProductCoupons")
+    @PreAuthorize("@permissionChecker.hasPermission('order:coupon:add')")
+    public R<String> saveProductCoupons(@RequestBody @Valid ProductCouponEntity productCouponEntity) {
+        couponService.saveProductCoupons(productCouponEntity);
+       return R.ok("优惠券配置成功");
     }
 }

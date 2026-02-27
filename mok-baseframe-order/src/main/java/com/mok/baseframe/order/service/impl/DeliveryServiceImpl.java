@@ -72,6 +72,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             OrderInfoEntity order = orderInfoMapper.selectById(deliveryOrder.getOrderId());
             if (order != null) {
                 order.setDeliveryTime(deliveryTime);
+                order.setOrderStatus(2);
                 orderInfoMapper.update(order);
             }
 
@@ -161,16 +162,11 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     @Override
-    public PageResult<DeliveryOrderEntity> getDeliveryList(PageParam pageParam, String userId,
-                                                           String deliveryNo, String orderNo,
-                                                           Integer deliveryStatus, String startTime,
-                                                           String endTime) {
+    public PageResult<DeliveryOrderEntity> getDeliveryList(PageParam pageParam,String userId) {
         try {
-            Map<String, Object> params = buildDeliveryQueryParams(
-                    userId, deliveryNo, orderNo, deliveryStatus, startTime, endTime, pageParam);
 
-            List<DeliveryOrderEntity> list = deliveryOrderMapper.selectByPage(params);
-            long total = deliveryOrderMapper.countByPage(params);
+            List<DeliveryOrderEntity> list = deliveryOrderMapper.selectByPage(pageParam);
+            long total = deliveryOrderMapper.countByPage(pageParam);
 
             return PageResult.success(list, total, pageParam.getPageNum(), pageParam.getPageSize());
         } catch (Exception e) {
@@ -180,16 +176,11 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     @Override
-    public PageResult<DeliveryOrderEntity> getAdminDeliveryList(PageParam pageParam, String userId,
-                                                                String deliveryNo, String orderNo,
-                                                                Integer deliveryStatus, String startTime,
-                                                                String endTime) {
+    public PageResult<DeliveryOrderEntity> getAdminDeliveryList(PageParam pageParam) {
         try {
-            Map<String, Object> params = buildDeliveryQueryParams(
-                    userId, deliveryNo, orderNo, deliveryStatus, startTime, endTime, pageParam);
 
-            List<DeliveryOrderEntity> list = deliveryOrderMapper.selectByPage(params);
-            long total = deliveryOrderMapper.countByPage(params);
+            List<DeliveryOrderEntity> list = deliveryOrderMapper.selectByPage(pageParam);
+            long total = deliveryOrderMapper.countByPage(pageParam);
 
             return PageResult.success(list, total, pageParam.getPageNum(), pageParam.getPageSize());
         } catch (Exception e) {
@@ -383,11 +374,13 @@ public class DeliveryServiceImpl implements DeliveryService {
     public int getPendingDeliveryCount() {
         try {
             Map<String, Object> params = new HashMap<>();
-            params.put("deliveryStatus", 0); // 待发货
-            params.put("offset", 0);
-            params.put("limit", Integer.MAX_VALUE);
-
-            List<DeliveryOrderEntity> list = deliveryOrderMapper.selectByPage(params);
+            // 待发货
+            params.put("deliveryStatus", 0);
+            PageParam pageParam = new PageParam();
+            pageParam.setParams(params);
+            pageParam.setPageNum(1);
+            pageParam.setPageSize(Integer.MAX_VALUE);
+            List<DeliveryOrderEntity> list = deliveryOrderMapper.selectByPage(pageParam);
             return list != null ? list.size() : 0;
         } catch (Exception e) {
             logger.error("获取待发货数量失败，异常：{}", e.getMessage(), e);

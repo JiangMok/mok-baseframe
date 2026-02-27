@@ -73,53 +73,53 @@
         WHERE id = #{id}
     </update>
 
-    <select id="selectByPage" resultMap="BaseResultMap" parameterType="map">
+    <select id="selectByPage" resultMap="BaseResultMap" parameterType="com.mok.baseframe.common.PageParam">
         SELECT <include refid="Base_Column_List" />
         FROM delivery_order
         WHERE 1=1
-        <if test="deliveryNo != null and deliveryNo != ''">
-            AND delivery_no = #{deliveryNo}
+        <if test="params.deliveryNo != null and params.deliveryNo != ''">
+            AND delivery_no = #{params.deliveryNo}
         </if>
-        <if test="orderNo != null and orderNo != ''">
-            AND order_no = #{orderNo}
+        <if test="params.orderNo != null and params.orderNo != ''">
+            AND order_no = #{params.orderNo}
         </if>
-        <if test="userId != null">
-            AND user_id = #{userId}
+        <if test="params.userId != null">
+            AND user_id = #{params.userId}
         </if>
-        <if test="deliveryStatus != null">
-            AND delivery_status = #{deliveryStatus}
+        <if test="params.deliveryStatus != null">
+            AND delivery_status = #{params.deliveryStatus}
         </if>
-        <if test="startTime != null">
-            AND create_time >= #{startTime}
+        <if test="params.startTime != null">
+            AND create_time >= #{params.startTime}
         </if>
-        <if test="endTime != null">
-            AND create_time &lt;= #{endTime}
+        <if test="params.endTime != null">
+            AND create_time &lt;= #{params.endTime}
         </if>
         ORDER BY create_time DESC
-        LIMIT #{offset}, #{limit}
+        LIMIT #{offset}, #{pageSize}
     </select>
 
-    <select id="countByPage" resultType="long" parameterType="map">
+    <select id="countByPage" resultType="long" parameterType="com.mok.baseframe.common.PageParam">
         SELECT COUNT(1)
         FROM delivery_order
         WHERE 1=1
-        <if test="deliveryNo != null and deliveryNo != ''">
-            AND delivery_no = #{deliveryNo}
+        <if test="params.deliveryNo != null and params.deliveryNo != ''">
+            AND delivery_no = #{params.deliveryNo}
         </if>
-        <if test="orderNo != null and orderNo != ''">
-            AND order_no = #{orderNo}
+        <if test="params.orderNo != null and params.orderNo != ''">
+            AND order_no = #{params.orderNo}
         </if>
-        <if test="userId != null">
-            AND user_id = #{userId}
+        <if test="params.userId != null">
+            AND user_id = #{params.userId}
         </if>
-        <if test="deliveryStatus != null">
-            AND delivery_status = #{deliveryStatus}
+        <if test="params.deliveryStatus != null">
+            AND delivery_status = #{params.deliveryStatus}
         </if>
-        <if test="startTime != null">
-            AND create_time >= #{startTime}
+        <if test="params.startTime != null">
+            AND create_time >= #{params.startTime}
         </if>
-        <if test="endTime != null">
-            AND create_time &lt;= #{endTime}
+        <if test="params.endTime != null">
+            AND create_time &lt;= #{params.endTime}
         </if>
     </select>
 

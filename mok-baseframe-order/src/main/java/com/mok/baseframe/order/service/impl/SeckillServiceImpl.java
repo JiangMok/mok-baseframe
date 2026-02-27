@@ -89,31 +89,44 @@ public class SeckillServiceImpl implements SeckillService {
 
             // 6. Redis预减秒杀库存（使用Lua脚本保证原子性）
             String seckillStockKey = RedisKeyUtil.getSeckillStockKey(productId);
-            String luaScript = "local stock = redis.call('get', KEYS[1]) " +
-                    "if stock and tonumber(stock) >= tonumber(ARGV[1]) then " +
-                    "   redis.call('decrby', KEYS[1], ARGV[1]) " +
-                    "   return 1 " +
-                    "else " +
-                    "   return 0 " +
-                    "end";
-
-            DefaultRedisScript<Long> redisScript = new DefaultRedisScript<>(luaScript, Long.class);
-            Long result = redisTemplate.execute(redisScript,
-                    Collections.singletonList(seckillStockKey), quantity.toString());
-
-            if (result == 0) {
-                return R.error("秒杀商品已售罄");
-            }
+//            Object stockValue = redisTemplate.opsForValue().get(seckillStockKey);
+//            String luaScript =
+//                    "local stock = redis.call('get', KEYS[1]) " +
+//                            "if stock then " +
+//                            "   if tonumber(stock) >= tonumber(ARGV[1]) then " +
+//                            "       redis.call('decrby', KEYS[1], ARGV[1]) " +
+//                            "       return 1 " +
+//                            "   else " +
+//                            "       return 0 " +
+//                            "   end " +
+//                            "else " +
+//                            "   return 0 " +
+//                            "end";
+//
+//            DefaultRedisScript<Long> redisScript = new DefaultRedisScript<>(luaScript, Long.class);
+//            logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Lua script SHA1: {}", redisScript.getSha1());
+//            logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>Lua script content: {}", luaScript);
+//            Long result = redisTemplate.execute(redisScript,
+//                    Collections.singletonList(seckillStockKey), quantity.toString());
+//            Long stock = redisTemplate.opsForValue().decrement(seckillStockKey, quantity);
+//            if (stock == null || stock < 0) {
+//                // 库存不足，回滚
+//                redisTemplate.opsForValue().increment(seckillStockKey, quantity);
+//                return R.error("秒杀商品剩余库存不足");
+//            }
+//            if (result == 0) {
+//                return R.error("秒杀商品已售罄");
+//            }
 
             // 7. 创建秒杀订单（异步处理，放入消息队列）
             // 这里简化处理，直接创建订单
             try {
-                String orderNo = orderService.createOrder(userId, productId, quantity, null, "秒杀订单");
+                String orderNo = orderService.createOrder(userId, productId, quantity, null, "秒杀订单",1);
                 stockUpdateProducer.sendSeckillStockReduceMessage(productId, quantity, null, orderNo);
                 return R.ok("秒杀成功", orderNo);
             } catch (Exception e) {
                 // 创建订单失败，恢复Redis库存
-                redisTemplate.opsForValue().increment(seckillStockKey, quantity);
+//                redisTemplate.opsForValue().increment(seckillStockKey, quantity);
                 logger.error("创建秒杀订单失败，恢复库存，商品ID：{}，用户ID：{}，异常：{}",
                         productId, userId, e.getMessage(), e);
                 return R.error("秒杀失败：" + e.getMessage());

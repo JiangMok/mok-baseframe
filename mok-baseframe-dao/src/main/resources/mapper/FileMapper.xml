@@ -7,9 +7,10 @@
     <update id="batchDelete">
         UPDATE sys_file
         SET status = 0,
+            is_deleted = 1,
         update_time = NOW(),
         update_by = #{updateBy}
-        WHERE file_id IN
+        WHERE id IN
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
         </foreach>

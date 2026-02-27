@@ -1,5 +1,7 @@
 package com.mok.baseframe.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Objects;
@@ -17,11 +19,15 @@ public class ProductEntity {
     private Integer stock;
     private Integer seckillStock;
     private BigDecimal seckillPrice;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date seckillStartTime;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date seckillEndTime;
     private Integer status;
     private Integer version;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date updateTime;
 
     public BigDecimal getPrice() {

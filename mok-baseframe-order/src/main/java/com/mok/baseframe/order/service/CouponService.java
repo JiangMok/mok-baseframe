@@ -3,6 +3,8 @@ package com.mok.baseframe.order.service;
 import com.mok.baseframe.common.PageParam;
 import com.mok.baseframe.common.PageResult;
 import com.mok.baseframe.entity.CouponEntity;
+import com.mok.baseframe.entity.ProductCouponEntity;
+import com.mok.baseframe.entity.ProductEntity;
 import com.mok.baseframe.entity.UserCouponEntity;
 
 import java.util.List;
@@ -57,4 +59,11 @@ public interface CouponService {
      * 清理过期优惠券
      */
     void cleanExpiredCoupons();
+
+    /**
+     * 通过商品ID查询该商品拥有的优惠券
+     */
+    List<CouponEntity> getByProductId(String productId);
+
+    void saveProductCoupons(ProductCouponEntity productCouponEntity);
 }

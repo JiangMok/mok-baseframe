@@ -2,6 +2,7 @@ package com.mok.baseframe.ratelimiter.enums;
 
 /**
  * 限流作用域枚举
+ * @author aha13
  */
 public enum RateLimitScope {
     

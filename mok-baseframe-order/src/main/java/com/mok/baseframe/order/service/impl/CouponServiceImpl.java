@@ -5,8 +5,10 @@ import com.mok.baseframe.common.BusinessException;
 import com.mok.baseframe.common.PageParam;
 import com.mok.baseframe.common.PageResult;
 import com.mok.baseframe.dao.CouponMapper;
+import com.mok.baseframe.dao.ProductCouponMapper;
 import com.mok.baseframe.dao.UserCouponMapper;
 import com.mok.baseframe.entity.CouponEntity;
+import com.mok.baseframe.entity.ProductCouponEntity;
 import com.mok.baseframe.entity.UserCouponEntity;
 import com.mok.baseframe.order.service.CouponService;
 import com.mok.baseframe.order.util.OrderNoGenerator;
@@ -26,12 +28,16 @@ public class CouponServiceImpl implements CouponService {
     private static final Logger logger = LoggerFactory.getLogger(CouponServiceImpl.class);
 
     private final CouponMapper couponMapper;
+    private final ProductCouponMapper productcouponMapper;
     private final UserCouponMapper userCouponMapper;
     private final RedisTemplate<String, Object> redisTemplate;
+
     public CouponServiceImpl(CouponMapper couponMapper,
+                             ProductCouponMapper productcouponMapper,
                              UserCouponMapper userCouponMapper,
-                             RedisTemplate<String, Object> redisTemplate){
+                             RedisTemplate<String, Object> redisTemplate) {
         this.couponMapper = couponMapper;
+        this.productcouponMapper = productcouponMapper;
         this.userCouponMapper = userCouponMapper;
         this.redisTemplate = redisTemplate;
     }
@@ -317,5 +323,28 @@ public class CouponServiceImpl implements CouponService {
         } catch (Exception e) {
             logger.error("清理过期优惠券失败：{}", e.getMessage(), e);
         }
+    }
+
+    @Override
+    public List<CouponEntity> getByProductId(String productId) {
+        return couponMapper.getByProductId(productId);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void saveProductCoupons(ProductCouponEntity productCouponEntity) {
+        //删除旧的商品-优惠券关联信息
+        productcouponMapper.deleteByProductId(productCouponEntity.getProductId());
+        //创建新的商品-优惠券关联信息
+        List<ProductCouponEntity> productCouponEntityList = new ArrayList<>();
+        for (String couponId : productCouponEntity.getCouponIds()) {
+            ProductCouponEntity productCoupon = new ProductCouponEntity();
+            productCoupon.setId(IdUtil.simpleUUID());
+            productCoupon.setProductId(productCouponEntity.getProductId());
+            productCoupon.setCouponId(couponId);
+            productCoupon.setCreateTime(new Date());
+            productCouponEntityList.add(productCoupon);
+        }
+        productcouponMapper.insertBatch(productCouponEntityList);
     }
 }

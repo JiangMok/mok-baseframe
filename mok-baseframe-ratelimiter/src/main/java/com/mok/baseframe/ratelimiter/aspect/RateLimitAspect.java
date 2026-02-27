@@ -4,9 +4,6 @@ import com.mok.baseframe.common.BusinessException;
 import com.mok.baseframe.ratelimiter.annotation.PreventDuplicate;
 import com.mok.baseframe.ratelimiter.annotation.RateLimit;
 import com.mok.baseframe.ratelimiter.config.RateLimiterProperties;
-import com.mok.baseframe.ratelimiter.enums.RateLimitScope;
-import com.mok.baseframe.ratelimiter.exception.DuplicateSubmitException;
-import com.mok.baseframe.ratelimiter.exception.RateLimitException;
 import com.mok.baseframe.ratelimiter.expression.SpelExpressionEvaluator;
 import com.mok.baseframe.ratelimiter.model.RateLimitContext;
 import com.mok.baseframe.ratelimiter.service.impl.RateLimiterServiceImpl;
@@ -14,32 +11,35 @@ import com.mok.baseframe.ratelimiter.util.RateLimitKeyBuilder;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
-import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import java.lang.reflect.Method;
 
 /**
- * 限流切面
- */
+ * @description:  限流切面
+ * @author: mok
+ * @date: 2026/2/25 14:24
+**/
+//这是一个切面类
 @Aspect
+//将这个类注册成 Spring Bean
 @Component
+//作用：通过AOP拦截带有@RateLimit和@PreventDuplicate注解的方法，执行限流和防重复提交逻辑
 public class RateLimitAspect {
     
     private static final Logger logger = LoggerFactory.getLogger(RateLimitAspect.class);
-    
+    //限流服务实现
     private final RateLimiterServiceImpl rateLimiterService;
-    
+    //限流配置属性
     private final RateLimiterProperties properties;
-    
+    //限流 key 构建器
     private final RateLimitKeyBuilder keyBuilder;
-    
+    //SpEL 表达式解析器
     private final SpelExpressionEvaluator spelEvaluator;
 
+    //构造函数注入
     public RateLimitAspect(RateLimiterServiceImpl rateLimiterService,
                            @Qualifier("mok.ratelimiter-com.mok.baseframe.ratelimiter.config.RateLimiterProperties")
                            RateLimiterProperties properties,
@@ -54,46 +54,60 @@ public class RateLimitAspect {
     /**
      * 限流切点
      */
+    // @Before -> 前置通知,在方法执行前执行
+    // @@annotation(rateLimitAnnotation) -> 匹配所有带有 @RateLimit 注解的方法,并将注解对象注入到rateLimitAnnotation
     @Before("@annotation(rateLimitAnnotation)")
     public void doRateLimit(JoinPoint joinPoint, RateLimit rateLimitAnnotation) {
+        // 判断是否启用限流模块以及当前注解是否启用,如果未启用则直接返回
         if (!properties.isEnabled() || !rateLimitAnnotation.enabled()) {
             return;
         }
         
         try {
-            // 构建限流Key
+            // 构建限流 Key,调用keyBuilder.buildRateLimitKey方法,传入切入点和注解
             String key = keyBuilder.buildRateLimitKey(joinPoint, rateLimitAnnotation);
             
-            // 构建限流上下文
+            // 构建限流上下文对象,使用建造者模式设置各个属性
             RateLimitContext context = RateLimitContext.builder()
+                // 限流 key
                 .key(key)
+                // 限流类型
                 .type(rateLimitAnnotation.type())
+                // 限流作用域
                 .scope(rateLimitAnnotation.scope())
+                // 窗口时间(秒)
                 .window(getWindowInSeconds(rateLimitAnnotation))
+                // 限制次数
                 .limit(getLimit(rateLimitAnnotation))
+                // 令牌桶容量
                 .capacity(rateLimitAnnotation.capacity())
+                // 令牌生成速率
                 .rate(rateLimitAnnotation.rate())
+                // 提示信息
                 .message(getMessage(rateLimitAnnotation))
                 .build();
-            // 执行限流检查
+            // 执行限流检查,待用 rateLimiterService.check 方法,传入限流上下文
             var result = rateLimiterService.check(context);
-            logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+            // 如果检查结果不允许通过
             if (!result.isAllowed()) {
+                //构造提示信息,如果result中有retryAfter则加上等待时间
                 String message = result.getRetryAfter() != null ?
                     String.format("%s，请等待 %d 秒后重试", context.getMessage(), result.getRetryAfter()) :
                     context.getMessage();
                 
-//                throw new RateLimitException(message, result.getRetryAfter());
+                //throw new RateLimitException(message, result.getRetryAfter());
+                //抛出业务异常
                 throw new BusinessException(message);
             }
             
             logger.debug("限流通过: key={}, scope={}", key, rateLimitAnnotation.scope());
             
-//        } catch (RateLimitException e) {
-//            throw e;
+        //} catch (RateLimitException e) {
+            //throw e;
         } catch (BusinessException e) {
             throw e;
         } catch (Exception e) {
+            // 捕获其他异常,仅记录日志,不中断业务(防止限流组件异常影响主流程)
             logger.error("限流切面错误", e);
             // 限流组件异常不影响业务
         }
@@ -102,26 +116,32 @@ public class RateLimitAspect {
     /**
      * 防重复提交切点
      */
+    // @Before -> 前置通知,在方法执行前执行
+    // @annotation(preventDuplicateAnnotation) -> 匹配所有带有 @PreventDuplicate 注解的方法
     @Before("@annotation(preventDuplicateAnnotation)")
     public void doPreventDuplicate(JoinPoint joinPoint, PreventDuplicate preventDuplicateAnnotation) {
+        // 判断是否启用限流模块，未启用则直接返回
         if (!properties.isEnabled()) {
             return;
         }
         
         try {
-            // 构建防重复提交Key
+            // 构建防重复提交Key,调用keyBuilder.buildDuplicateKey方法
             String key = keyBuilder.buildDuplicateKey(joinPoint, preventDuplicateAnnotation);
+            // 获取锁定时间
             int lockTime = preventDuplicateAnnotation.lockTime();
-            
-            // 检查是否允许提交
+
+            // 检查是否允许提交.调用rateLimiterService.checkAndLock方法，原子性地检查并加锁
             boolean allowed = rateLimiterService.checkAndLock(key, lockTime);
-            
+            //如果不允许重复提交(即已经存在锁)
             if (!allowed) {
+                //获取注解中的提示信息
                 String message = preventDuplicateAnnotation.message();
+                //如果提示信息为null,则使用配置中的默认信息
                 if (message == null || message.isEmpty()) {
                     message = properties.getDefaultDuplicateMessage();
                 }
-//                throw new DuplicateSubmitException(message);
+                //throw new DuplicateSubmitException(message);
                 throw new BusinessException(message);
             }
             
@@ -136,15 +156,30 @@ public class RateLimitAspect {
             // 防重复组件异常不影响业务
         }
     }
-    
+
+    /**
+     * 获取以秒为单位的时间窗口
+     * 参数：rateLimit注解对象
+     * 作用：将注解中的window和unit转换为秒
+     */
     private long getWindowInSeconds(RateLimit rateLimit) {
         return rateLimit.unit().toSeconds(rateLimit.window());
     }
-    
+
+    /**
+     * 获取限流次数
+     * 参数：rateLimit注解对象
+     * 作用：如果注解中limit>0则使用注解值，否则使用配置中的默认值
+     */
     private long getLimit(RateLimit rateLimit) {
         return rateLimit.limit() > 0 ? rateLimit.limit() : properties.getDefaultLimit();
     }
-    
+
+    /**
+     * 获取提示信息
+     * 参数：rateLimit注解对象
+     * 作用：如果注解中message不为空则使用，否则使用配置中的默认信息
+     */
     private String getMessage(RateLimit rateLimit) {
         String message = rateLimit.message();
         return (message == null || message.isEmpty()) ? 

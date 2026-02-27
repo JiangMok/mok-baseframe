@@ -28,18 +28,12 @@ public interface DeliveryService {
     /**
      * 分页查询发货单列表（用户）
      */
-    PageResult<DeliveryOrderEntity> getDeliveryList(PageParam pageParam, String userId,
-                                                   String deliveryNo, String orderNo,
-                                                   Integer deliveryStatus, String startTime,
-                                                   String endTime);
+    PageResult<DeliveryOrderEntity> getDeliveryList(PageParam pageParam, String userId);
     
     /**
      * 分页查询发货单列表（管理员）
      */
-    PageResult<DeliveryOrderEntity> getAdminDeliveryList(PageParam pageParam, String userId,
-                                                        String deliveryNo, String orderNo,
-                                                        Integer deliveryStatus, String startTime,
-                                                        String endTime);
+    PageResult<DeliveryOrderEntity> getAdminDeliveryList(PageParam pageParam);
     
     /**
      * 创建发货单

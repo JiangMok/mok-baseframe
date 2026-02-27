@@ -16,7 +16,17 @@ public interface ProductService {
      * 更新商品
      */
     void updateProduct(ProductEntity product);
-    
+
+    /**
+     * 设置秒杀信息
+     */
+    void setSeckill(ProductEntity product);
+
+    /**
+     * 清空秒杀信息
+     */
+    void clearSeckill(String id);
+
     /**
      * 删除商品
      */
@@ -30,7 +40,7 @@ public interface ProductService {
     /**
      * 分页查询商品列表
      */
-    PageResult<ProductEntity> getProductList(PageParam pageParam, String productName, Integer status);
+    PageResult<ProductEntity> getProductList(PageParam pageParam);
     
     /**
      * 扣减商品库存

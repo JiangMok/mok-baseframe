@@ -12,7 +12,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -32,11 +34,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final TokenBlacklistService tokenBlacklistService;
+    private final AuthenticationEntryPoint authenticationEntryPoint;
 
     public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider,
-                                   TokenBlacklistService tokenBlacklistService) {
+                                   TokenBlacklistService tokenBlacklistService,
+                                   AuthenticationEntryPoint authenticationEntryPoint) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.tokenBlacklistService = tokenBlacklistService;
+        this.authenticationEntryPoint = authenticationEntryPoint;
 
     }
 
@@ -52,8 +57,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 // 1. 检查Token是否在黑名单中
                 if (tokenBlacklistService.isTokenBlacklisted(token)) {
                     log.warn("Token已被加入黑名单");
-                    ResponseUtils.writeError(response, ResponseCode.UNAUTHORIZED, "请登录后重试");
+//                    ResponseUtils.writeError(response, ResponseCode.UNAUTHORIZED, "请登录后重试");
 //                    sendErrorResponse(response,R.tokenInvalid());
+//                    return;
+                    authenticationEntryPoint.commence(request, response, new AuthenticationException("请登录后重试") {});
                     return;
                 }
                 // 2. 验证Token的签名和过期时间
@@ -65,13 +72,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 } else {
                     // Token验证失败（过期或无效）
                     log.warn("Token验证失败");
-                    ResponseUtils.writeError(response, ResponseCode.UNAUTHORIZED, "登录认证失败,请重试");
+//                    ResponseUtils.writeError(response, ResponseCode.UNAUTHORIZED, "登录认证失败,请重试");
+//                    return;
+                    authenticationEntryPoint.commence(request, response, new AuthenticationException("登录认证失败,请重试") {});
                     return;
                 }
             } catch (io.jsonwebtoken.ExpiredJwtException e) {
                 log.error("Token验证异常", e);
-                ResponseUtils.writeError(response, ResponseCode.UNAUTHORIZED, "登录信息已过期,请重新登录");
+//                ResponseUtils.writeError(response, ResponseCode.UNAUTHORIZED, "登录信息已过期,请重新登录");
                 SecurityContextHolder.clearContext();
+                authenticationEntryPoint.commence(request, response, new AuthenticationException("登录信息已过期,请重新登录") {});
+                return;
             }
         }
 

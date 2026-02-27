@@ -1,7 +1,6 @@
 package com.mok.baseframe.ratelimiter.monitor;
 
 import com.mok.baseframe.ratelimiter.config.RateLimiterProperties;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
 import org.springframework.boot.actuate.endpoint.annotation.ReadOperation;
@@ -14,15 +13,21 @@ import java.util.Set;
 
 /**
  * 限流监控端点
+ * 作用 : 通过Spring Boot Actuator暴露限流模块的运行时信息
+ * @author aha13
  */
+// 注册为 spring bean
 @Component
+// 声明这是一个Actuator 端点,ID 为ratelimit,访问路径是/actuator/ratelimit
 @Endpoint(id = "ratelimit")
 public class RateLimitEndpoint {
 
+    // redis 模板
     private final RedisTemplate<String, Object> redisTemplate;
-
+    // 限流配置属性
     private final RateLimiterProperties properties;
 
+    // 构造函数注入
     public RateLimitEndpoint(RedisTemplate<String, Object> redisTemplate,
                              @Qualifier("mok.ratelimiter-com.mok.baseframe.ratelimiter.config.RateLimiterProperties")
                              RateLimiterProperties properties) {
@@ -30,17 +35,24 @@ public class RateLimitEndpoint {
         this.properties = properties;
     }
 
+    /**
+     * 读取操作，当GET请求该端点时执行
+     *
+     * @return 包含限流信息的 Map
+     */
     @ReadOperation
     public Map<String, Object> rateLimitInfo() {
         Map<String, Object> info = new HashMap<>();
+        // 填充基本信息
         info.put("enabled", properties.isEnabled());
         info.put("clusterMode", properties.isClusterMode());
         info.put("redisKeyPrefix", properties.getRedisKeyPrefix());
         info.put("duplicateKeyPrefix", properties.getDuplicateKeyPrefix());
 
-        // 获取限流相关Key的数量
+        // 获取限流相关 Key 的数量
         if (redisTemplate != null) {
             try {
+                // 使用 keys 命令扫描所有以限流前缀开头的 key
                 Set<String> rateKeys = redisTemplate.keys(properties.getRedisKeyPrefix() + "*");
                 Set<String> duplicateKeys = redisTemplate.keys(properties.getDuplicateKeyPrefix() + "*");
 

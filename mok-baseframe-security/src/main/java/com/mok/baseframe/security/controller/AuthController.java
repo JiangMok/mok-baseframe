@@ -10,6 +10,7 @@ import com.mok.baseframe.enums.BusinessType;
 import com.mok.baseframe.ratelimiter.annotation.RateLimit;
 import com.mok.baseframe.ratelimiter.enums.RateLimitScope;
 import com.mok.baseframe.ratelimiter.enums.RateLimitType;
+import com.mok.baseframe.security.jwt.JwtProperties;
 import com.mok.baseframe.security.jwt.JwtTokenProvider;
 import com.mok.baseframe.security.jwt.TokenBlacklistService;
 import com.mok.baseframe.service.PermissionCacheService;
@@ -20,6 +21,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -55,19 +57,23 @@ public class AuthController {
     private final SecurityUserService securityUserService;
     private final TokenBlacklistService tokenBlacklistService;
     private final PermissionCacheService permissionCacheService;
+    private final JwtProperties jwtProperties;
 
     // 构造函数注入
     public AuthController(AuthenticationManager authenticationManager,
                           JwtTokenProvider jwtTokenProvider,
                           CaptchaService captchaService,
                           SecurityUserService securityUserService,
-                          TokenBlacklistService tokenBlacklistService, PermissionCacheService permissionCacheService) {
+                          TokenBlacklistService tokenBlacklistService,
+                          PermissionCacheService permissionCacheService,
+                          JwtProperties jwtProperties) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
         this.captchaService = captchaService;
         this.securityUserService = securityUserService;
         this.tokenBlacklistService = tokenBlacklistService;
         this.permissionCacheService = permissionCacheService;
+        this.jwtProperties = jwtProperties;
     }
 
     /**
@@ -130,8 +136,8 @@ public class AuthController {
         loginResponse.setToken(token);
         loginResponse.setAvatar(userEntity.getAvatar());
         loginResponse.setRefreshToken(refreshToken);
-        //设定过期时间为两个小时 >>> 7200L
-        loginResponse.setExpiresIn(7200L);
+        //设定过期时间为两个小时(毫秒) >>> 7200000L
+        loginResponse.setExpiresIn(jwtProperties.getTokenExpire());
         loginResponse.setUsername(userEntity.getUsername());
         loginResponse.setNickname(userEntity.getNickname());
         loginResponse.setUserId(userEntity.getId());
@@ -225,7 +231,7 @@ public class AuthController {
         LoginResponse response = new LoginResponse();
         response.setToken(newToken);
         response.setRefreshToken(newRefreshToken);
-        response.setExpiresIn(7200L);
+        response.setExpiresIn(jwtProperties.getTokenExpire());
         response.setUsername(userEntity.getUsername());
         response.setNickname(userEntity.getNickname());
         response.setUserId(userEntity.getId());

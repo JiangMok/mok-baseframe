@@ -17,7 +17,7 @@ public interface OrderService {
      * 创建订单
      */
     String createOrder(String userId, String productId, Integer quantity,
-                      List<String> couponIds, String remark);
+                      List<String> couponIds, String remark,Integer orderType);
     
     /**
      * 确认订单（下单但未支付）
@@ -43,9 +43,7 @@ public interface OrderService {
     /**
      * 分页查询订单列表
      */
-    PageResult<OrderInfoEntity> getOrderList(PageParam pageParam, String userId,
-                                            String orderNo, String productName, 
-                                            Integer orderStatus, Integer payStatus);
+    PageResult<OrderInfoEntity> getOrderList(PageParam pageParam);
     
     /**
      * 关闭超时未支付订单
