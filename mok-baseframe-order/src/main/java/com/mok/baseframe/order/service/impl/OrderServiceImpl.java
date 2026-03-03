@@ -321,7 +321,8 @@ public class OrderServiceImpl implements OrderService {
             orderInfoMapper.updateOrderStatus(
                     order.getId(),
                     0, // 旧订单状态：待支付
-                    1, // 新订单状态：已支付
+                    1, // 新订单状态：待发货
+                    2, //已支付
                     null,
                     null
             );
@@ -399,7 +400,8 @@ public class OrderServiceImpl implements OrderService {
             int result = orderInfoMapper.updateOrderStatus(
                     order.getId(),
                     0, // 旧订单状态：待支付
-                    2, // 新订单状态：已取消
+                    4, // 新订单状态：已取消
+                    4, // 已取消
                     cancelReason,
                     cancelTime
             );

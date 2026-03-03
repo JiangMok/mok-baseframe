@@ -95,8 +95,8 @@ public class OrderController {
     @OperationLog(title = "取消订单", businessType = BusinessType.UPDATE)
     @PreAuthorize("@permissionChecker.hasPermission('order:order:cancel')")
     @PostMapping("/cancel")
-    public R<String> cancelOrder(@RequestParam String orderNo,
-                                 @RequestParam String cancelReason) {
+    public R<String> cancelOrder(@RequestParam("orderNo") String orderNo,
+                                 @RequestParam("cancelReason") String cancelReason) {
         boolean success = orderService.cancelOrder(orderNo, cancelReason);
         if (success) {
             return R.ok("取消订单成功");
@@ -122,9 +122,8 @@ public class OrderController {
     @PostMapping("/list")
     public R<PageResult<OrderInfoEntity>> getOrderList(@RequestBody @Valid PageParam param) {
         String userId = securityUtils.getCurrentUserId();
-        Map<String, Object> params = new HashMap<>();
+        Map<String, Object> params = param.getParams();
         params.put("userId", userId);
-        param.setParams(params);
         PageResult<OrderInfoEntity> result = orderService.getOrderList(param);
         return R.ok("查询成功", result);
     }

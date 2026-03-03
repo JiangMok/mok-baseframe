@@ -62,19 +62,18 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
         Page<FileEntity> page = new Page<>(param.getPageNum(), param.getPageSize());
         //创建lambda查询包装器
         LambdaQueryWrapper<FileEntity> wrapper = new LambdaQueryWrapper<>();
+        //按文件类型查询
+        if (param.getParams().get("fileType") != null) {
+            wrapper.eq(FileEntity::getFileType, param.getParams().get("fileType"));
+        }
+        //按上传用户ID搜索
+        if (param.getParams().get("uploadUserId") != null) {
+            wrapper.eq(FileEntity::getUploadUserId, param.getParams().get("uploadUserId"));
+        }
         //根据原始文件名或者存储文件名模糊搜索
         if (StringUtils.hasText(param.getKeyword())) {
             wrapper.like(FileEntity::getOriginalName, param.getKeyword())
                     .or().like(FileEntity::getStorageName, param.getKeyword());
-        }
-        //按文件类型查询
-        if (param.get("fileType") != null) {
-
-            wrapper.eq(FileEntity::getFileType, param.get("fileType"));
-        }
-        //按上传用户ID搜索
-        if (param.get("uploadUserId") != null) {
-            wrapper.eq(FileEntity::getUploadUserId, param.get("uploadUserId"));
         }
         if (param.getOrderBy() != null) {
             if ("asc".equalsIgnoreCase(param.getOrder())) {

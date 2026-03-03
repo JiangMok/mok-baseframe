@@ -81,7 +81,6 @@ public class DeliveryController {
         String userId = securityUtils.getCurrentUserId();
         PageResult<DeliveryOrderEntity> result = deliveryService.getDeliveryList(
                 pageParam, userId);
-
         return R.ok("查询成功", result);
     }
 

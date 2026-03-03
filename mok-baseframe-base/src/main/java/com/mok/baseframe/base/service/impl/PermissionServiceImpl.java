@@ -63,17 +63,17 @@ public class PermissionServiceImpl
         Page<PermissionEntity> page = new Page<>(param.getPageNum(), param.getPageSize());
         LambdaQueryWrapper<PermissionEntity> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(PermissionEntity::getIsDeleted, 0);
-        //根据权限名搜索或者权限编码查询
-        if (StringUtils.hasText(param.getKeyword())) {
-            wrapper.like(PermissionEntity::getPermissionName, param.getKeyword())
-                    .or().like(PermissionEntity::getPermissionCode, param.getKeyword());
+        if (param.getParams().get("type") != null) {
+            wrapper.eq(PermissionEntity::getType, param.getParams().get("type"));
         }
         //按状态查询
         if (param.get("status") != null) {
             wrapper.eq(PermissionEntity::getStatus, param.get("status"));
         }
-        if (param.get("type") != null) {
-            wrapper.eq(PermissionEntity::getType, param.get("type"));
+        //根据权限名搜索或者权限编码查询
+        if (StringUtils.hasText(param.getKeyword())) {
+            wrapper.like(PermissionEntity::getPermissionName, param.getKeyword())
+                    .or().like(PermissionEntity::getPermissionCode, param.getKeyword());
         }
         if (param.getOrderBy() != null) {
             if ("asc".equalsIgnoreCase(param.getOrder())) {

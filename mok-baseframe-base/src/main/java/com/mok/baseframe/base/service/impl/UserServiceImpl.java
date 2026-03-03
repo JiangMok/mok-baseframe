@@ -200,9 +200,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserEntity> impleme
             //目标不是admin,超级管理员可以各种修改
             return true;
         }
-        // 普通用户只能编辑自己创建的用户
+
         UserEntity targetUserEntity = getById(targetUserId);
-        return targetUserEntity != null && currentUserEntity.getId().equals(targetUserEntity.getCreateBy());
+        return targetUserEntity != null &&
+                // 普通用户只能编辑自己创建的用户
+                (currentUserEntity.getId().equals(targetUserEntity.getCreateBy()) ||
+                        //和自己
+                        currentUserEntity.getId().equals(targetUserId));
     }
 
     @Override

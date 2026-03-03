@@ -167,7 +167,6 @@ public class DeliveryServiceImpl implements DeliveryService {
 
             List<DeliveryOrderEntity> list = deliveryOrderMapper.selectByPage(pageParam);
             long total = deliveryOrderMapper.countByPage(pageParam);
-
             return PageResult.success(list, total, pageParam.getPageNum(), pageParam.getPageSize());
         } catch (Exception e) {
             logger.error("查询发货单列表失败，用户ID：{}，异常：{}", userId, e.getMessage(), e);

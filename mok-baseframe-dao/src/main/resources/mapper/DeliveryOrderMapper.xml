@@ -78,10 +78,16 @@
         FROM delivery_order
         WHERE 1=1
         <if test="params.deliveryNo != null and params.deliveryNo != ''">
-            AND delivery_no = #{params.deliveryNo}
+            AND delivery_no LIKE CONCAT('%', #{params.deliveryNo},'%')
         </if>
         <if test="params.orderNo != null and params.orderNo != ''">
-            AND order_no = #{params.orderNo}
+            AND order_no LIKE CONCAT('%', #{params.orderNo},'%')
+        </if>
+        <if test="params.deliveryNumber != null and params.deliveryNumber != ''">
+            AND delivery_number LIKE CONCAT('%', #{params.deliveryNumber},'%')
+        </if>
+          <if test="params.receiverName != null and params.receiverName != ''">
+            AND receiver_name LIKE CONCAT('%', #{params.receiverName},'%')
         </if>
         <if test="params.userId != null">
             AND user_id = #{params.userId}
@@ -90,7 +96,7 @@
             AND delivery_status = #{params.deliveryStatus}
         </if>
         <if test="params.startTime != null">
-            AND create_time >= #{params.startTime}
+            AND create_time &gt;= #{params.startTime}
         </if>
         <if test="params.endTime != null">
             AND create_time &lt;= #{params.endTime}
@@ -104,10 +110,16 @@
         FROM delivery_order
         WHERE 1=1
         <if test="params.deliveryNo != null and params.deliveryNo != ''">
-            AND delivery_no = #{params.deliveryNo}
+            AND delivery_no LIKE CONCAT('%', #{params.deliveryNo},'%')
         </if>
         <if test="params.orderNo != null and params.orderNo != ''">
-            AND order_no = #{params.orderNo}
+            AND order_no LIKE CONCAT('%', #{params.orderNo},'%')
+        </if>
+        <if test="params.deliveryNumber != null and params.deliveryNumber != ''">
+            AND delivery_number LIKE CONCAT('%', #{params.deliveryNumber},'%')
+        </if>
+        <if test="params.receiverName != null and params.receiverName != ''">
+            AND receiver_name LIKE CONCAT('%', #{params.receiverName},'%')
         </if>
         <if test="params.userId != null">
             AND user_id = #{params.userId}
@@ -116,7 +128,7 @@
             AND delivery_status = #{params.deliveryStatus}
         </if>
         <if test="params.startTime != null">
-            AND create_time >= #{params.startTime}
+            AND create_time &gt;= #{params.startTime}
         </if>
         <if test="params.endTime != null">
             AND create_time &lt;= #{params.endTime}

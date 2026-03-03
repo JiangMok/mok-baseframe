@@ -37,6 +37,7 @@ public interface OrderInfoMapper {
     int updateOrderStatus(@Param("id") String id,
                           @Param("oldStatus") Integer oldStatus,
                           @Param("newStatus") Integer newStatus,
+                          @Param("payStatus") Integer payStatus,
                           @Param("cancelReason") String cancelReason,
                           @Param("cancelTime") Date cancelTime);
 

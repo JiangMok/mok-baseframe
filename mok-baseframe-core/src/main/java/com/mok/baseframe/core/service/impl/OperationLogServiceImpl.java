@@ -44,22 +44,16 @@ public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, Ope
         Page<OperationLogEntity> page = new Page<>(param.getPageNum(), param.getPageSize());
         LambdaQueryWrapper<OperationLogEntity> wrapper = new LambdaQueryWrapper<>();
         // 条件查询
-        if (StringUtils.hasText(param.getKeyword())) {
-            wrapper.like(OperationLogEntity::getTitle, param.getKeyword())
-                    //.like 模糊查询
-                    .or().like(OperationLogEntity::getOperatorName, param.getKeyword())
-                    .or().like(OperationLogEntity::getOperUrl, param.getKeyword());
-        }
-        if (param.get("operatorType") != null) {
+//        if (param.getParams().get("operatorType") != null && !"".equals(param.getParams().get("operatorType"))) {
+//            //.eq 等于
+//            wrapper.eq(OperationLogEntity::getOperatorType, param.getParams().get("operatorType"));
+//        }
+        if (param.getParams().get("status")!= null && !"".equals(param.getParams().get("status"))) {
             //.eq 等于
-            wrapper.eq(OperationLogEntity::getOperatorType, param.get("operatorType"));
+            wrapper.eq(OperationLogEntity::getStatus, param.getParams().get("status"));
         }
-        if (param.get("status")!= null) {
-            //.eq 等于
-            wrapper.eq(OperationLogEntity::getStatus, param.get("status"));
-        }
-        if (param.get("businessType") != null) {
-            wrapper.eq(OperationLogEntity::getBusinessType, param.get("businessType"));
+        if (param.getParams().get("businessType") != null && !"".equals(param.getParams().get("businessType"))) {
+            wrapper.eq(OperationLogEntity::getBusinessType, param.getParams().get("businessType"));
         }
 
         // 时间范围查询
@@ -70,6 +64,12 @@ public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, Ope
         if (param.get("endTime") != null) {
             //.le 小于等于
             wrapper.le(OperationLogEntity::getOperTime, param.get("endTime"));
+        }
+        if (StringUtils.hasText(param.getKeyword())) {
+            wrapper.like(OperationLogEntity::getTitle, param.getKeyword())
+                    //.like 模糊查询
+                    .or().like(OperationLogEntity::getOperatorName, param.getKeyword())
+                    .or().like(OperationLogEntity::getOperUrl, param.getKeyword());
         }
         // 排序
         wrapper.orderByDesc(OperationLogEntity::getOperTime);

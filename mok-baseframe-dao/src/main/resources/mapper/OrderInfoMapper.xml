@@ -83,10 +83,10 @@
         FROM order_info
         WHERE 1=1
         <if test="params.orderNo != null and params.orderNo != ''">
-            AND order_no = #{params.orderNo}
+            AND order_no LIKE CONCAT('%', #{params.orderNo}, '%')
         </if>
         <if test="params.userId != null">
-            AND user_id = #{params.userId}
+            AND user_id LIKE CONCAT('%',  #{params.userId}, '%')
         </if>
         <if test="params.productName != null and params.productName != ''">
             AND product_name LIKE CONCAT('%', #{params.productName}, '%')
@@ -98,7 +98,7 @@
             AND pay_status = #{params.payStatus}
         </if>
         <if test="params.startTime != null">
-            AND create_time >= #{params.startTime}
+            AND create_time &gt;= #{params.startTime}
         </if>
         <if test="params.endTime != null">
             AND create_time &lt;= #{params.endTime}
@@ -112,10 +112,10 @@
         FROM order_info
         WHERE 1=1
         <if test="params.orderNo != null and params.orderNo != ''">
-            AND order_no = #{params.orderNo}
+            AND order_no LIKE CONCAT('%', #{params.orderNo}, '%')
         </if>
         <if test="params.userId != null">
-            AND user_id = #{params.userId}
+            AND user_id LIKE CONCAT('%',  #{params.userId}, '%')
         </if>
         <if test="params.productName != null and params.productName != ''">
             AND product_name LIKE CONCAT('%', #{params.productName}, '%')
@@ -127,7 +127,7 @@
             AND pay_status = #{params.payStatus}
         </if>
         <if test="params.startTime != null">
-            AND create_time >= #{params.startTime}
+            AND create_time &gt;= #{params.startTime}
         </if>
         <if test="params.endTime != null">
             AND create_time &lt;= #{params.endTime}
@@ -139,9 +139,11 @@
         UPDATE order_info
         SET order_status = #{newStatus},
         <if test="cancelReason != null">cancel_reason = #{cancelReason},</if>
+        <if test="payStatus != null">pay_status = #{payStatus},</if>
         <if test="cancelTime != null">cancel_time = #{cancelTime},</if>
         update_time = NOW()
         WHERE id = #{id}
+        AND pay_status = #{oldStatus}
         AND order_status = #{oldStatus}
     </update>
 
