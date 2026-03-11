@@ -13,7 +13,7 @@ import com.mok.baseframe.order.service.OrderService;
 import com.mok.baseframe.order.service.ProductService;
 import com.mok.baseframe.order.util.OrderNoGenerator;
 import com.mok.baseframe.order.util.RedisKeyUtil;
-import com.mok.baseframe.utils.SecurityUtils;
+import com.mok.baseframe.security.utils.SecurityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;

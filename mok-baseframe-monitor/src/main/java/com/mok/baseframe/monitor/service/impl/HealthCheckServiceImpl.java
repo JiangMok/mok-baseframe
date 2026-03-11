@@ -1,7 +1,7 @@
 package com.mok.baseframe.monitor.service.impl;
 
+import com.mok.baseframe.common.utils.LogUtils;
 import com.mok.baseframe.monitor.service.HealthCheckService;
-import com.mok.baseframe.utils.LogUtils;
 import org.slf4j.Logger;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.RedisConnection;

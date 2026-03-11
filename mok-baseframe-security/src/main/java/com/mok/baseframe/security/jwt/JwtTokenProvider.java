@@ -1,6 +1,6 @@
 package com.mok.baseframe.security.jwt;
 
-import com.mok.baseframe.utils.LogUtils;
+import com.mok.baseframe.common.utils.LogUtils;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;

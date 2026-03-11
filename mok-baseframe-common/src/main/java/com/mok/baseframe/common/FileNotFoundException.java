@@ -1,7 +1,6 @@
 package com.mok.baseframe.common;
 
-import com.mok.baseframe.common.BusinessException;
-import com.mok.baseframe.constant.ResponseCode;
+import com.mok.baseframe.common.constant.ResponseCode;
 
 public class FileNotFoundException extends BusinessException {
     

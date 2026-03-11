@@ -1,6 +1,6 @@
 package com.mok.baseframe.mq.consumer;
 
-import com.mok.baseframe.core.service.OperationLogService;
+import com.mok.baseframe.base.service.OperationLogService;
 import com.mok.baseframe.dto.OperationLogMessage;
 import com.mok.baseframe.entity.OperationLogEntity;
 import com.mok.baseframe.mq.config.RabbitMQConfig;

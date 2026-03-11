@@ -14,7 +14,6 @@
 
     <modules>
         <module>mok-baseframe-common</module>
-        <module>mok-baseframe-core</module>
         <module>mok-baseframe-model</module>
         <module>mok-baseframe-dao</module>
         <module>mok-baseframe-base</module>
@@ -149,11 +148,6 @@
             <dependency>
                 <groupId>com.mok</groupId>
                 <artifactId>mok-baseframe-order</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.mok</groupId>
-                <artifactId>mok-baseframe-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

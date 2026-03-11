@@ -1,10 +1,10 @@
 package com.mok.baseframe.security.controller;
 
-import com.mok.baseframe.core.annotation.OperationLog;
+import com.mok.baseframe.common.annotation.OperationLog;
 import com.mok.baseframe.common.R;
-import com.mok.baseframe.enums.BusinessType;
+import com.mok.baseframe.common.enums.BusinessType;
 import com.mok.baseframe.monitor.service.HealthCheckService;
-import com.mok.baseframe.service.PermissionCacheService;
+import com.mok.baseframe.security.service.PermissionCacheService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

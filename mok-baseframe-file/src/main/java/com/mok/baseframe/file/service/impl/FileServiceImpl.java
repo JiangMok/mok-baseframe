@@ -9,13 +9,14 @@ import com.mok.baseframe.common.FileNotFoundException;
 import com.mok.baseframe.common.FileUploadException;
 import com.mok.baseframe.common.PageParam;
 import com.mok.baseframe.common.PageResult;
-import com.mok.baseframe.core.config.FileStorageConfig;
+import com.mok.baseframe.common.config.FileStorageConfig;
 import com.mok.baseframe.dao.FileMapper;
 import com.mok.baseframe.dto.FileUploadResponse;
 import com.mok.baseframe.entity.FileEntity;
 import com.mok.baseframe.file.service.FileService;
-import com.mok.baseframe.utils.LogUtils;
-import com.mok.baseframe.utils.SecurityUtils;
+import com.mok.baseframe.common.utils.LogUtils;
+import com.mok.baseframe.security.utils.SecurityUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -49,11 +50,14 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy/MM/dd");
     private final FileStorageConfig fileStorageConfig;
     private final SecurityUtils securityUtils;
+    private final HttpServletRequest request;
 
     public FileServiceImpl(FileStorageConfig fileStorageConfig,
-                           SecurityUtils securityUtils) {
+                           SecurityUtils securityUtils,
+                           HttpServletRequest request) {
         this.fileStorageConfig = fileStorageConfig;
         this.securityUtils = securityUtils;
+        this.request = request;
     }
 
     @Override
@@ -281,7 +285,26 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
     }
 
     private String getClientIp() {
-        // 简化实现，实际应从请求中获取
-        return "127.0.0.1";
+        String ip = request.getHeader("X-Forwarded-For");
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("Proxy-Client-IP");
+        }
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("HTTP_CLIENT_IP");
+        }
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+        }
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        }
+        // 对于通过代理的情况，第一个IP为客户端真实IP（取逗号分割的第一个）
+        if (ip != null && ip.contains(",")) {
+            ip = ip.split(",")[0].trim();
+        }
+        return ip;
     }
 }

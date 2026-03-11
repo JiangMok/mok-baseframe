@@ -2,12 +2,9 @@ package com.mok.baseframe.security.config;
 
 import com.mok.baseframe.security.filter.JwtAuthenticationFilter;
 import com.mok.baseframe.security.handler.SecurityExceptionHandler;
-import com.mok.baseframe.utils.LogUtils;
-import org.slf4j.Logger;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;

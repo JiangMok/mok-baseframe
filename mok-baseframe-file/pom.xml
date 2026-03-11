@@ -35,10 +35,6 @@
         </dependency>
         <dependency>
             <groupId>com.mok</groupId>
-            <artifactId>mok-baseframe-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.mok</groupId>
             <artifactId>mok-baseframe-security</artifactId>
         </dependency>
         <dependency>

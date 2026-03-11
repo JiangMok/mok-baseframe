@@ -1,9 +1,9 @@
 package com.mok.baseframe.captcha.service.impl;
 
 import cn.hutool.core.util.RandomUtil;
-import com.mok.baseframe.core.config.CaptchaConfig;
+import com.mok.baseframe.common.config.CaptchaConfig;
 import com.mok.baseframe.captcha.service.CaptchaService;
-import com.mok.baseframe.utils.LogUtils;
+import com.mok.baseframe.common.utils.LogUtils;
 import org.slf4j.Logger;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;

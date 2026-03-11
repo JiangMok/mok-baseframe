@@ -23,10 +23,6 @@
         <!-- 依赖其他模块 -->
         <dependency>
             <groupId>com.mok</groupId>
-            <artifactId>mok-baseframe-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.mok</groupId>
             <artifactId>mok-baseframe-common</artifactId>
         </dependency>
         <dependency>

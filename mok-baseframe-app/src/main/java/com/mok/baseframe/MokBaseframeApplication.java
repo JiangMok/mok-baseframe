@@ -17,9 +17,7 @@ import java.util.Map;
  **/
 @EnableScheduling
 @SpringBootApplication(scanBasePackages = {
-        "com.mok.baseframe.*",
-        "com.mok.baseframe.base.controller",
-        "com.mok.baseframe.core.aspect"
+        "com.mok.baseframe.*"
 })
 @MapperScan("com.mok.baseframe.dao")
 public class MokBaseframeApplication {

@@ -1,10 +1,10 @@
 package com.mok.baseframe.order.controller;
 
 import com.mok.baseframe.common.R;
-import com.mok.baseframe.core.annotation.OperationLog;
-import com.mok.baseframe.enums.BusinessType;
+import com.mok.baseframe.common.annotation.OperationLog;
+import com.mok.baseframe.common.enums.BusinessType;
 import com.mok.baseframe.order.service.SeckillService;
-import com.mok.baseframe.utils.SecurityUtils;
+import com.mok.baseframe.security.utils.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.security.access.prepost.PreAuthorize;

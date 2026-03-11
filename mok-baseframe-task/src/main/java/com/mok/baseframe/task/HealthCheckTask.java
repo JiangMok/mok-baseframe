@@ -1,7 +1,7 @@
 package com.mok.baseframe.task;
 
 import com.mok.baseframe.monitor.service.HealthCheckService;
-import com.mok.baseframe.utils.LogUtils;
+import com.mok.baseframe.common.utils.LogUtils;
 import org.slf4j.Logger;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;

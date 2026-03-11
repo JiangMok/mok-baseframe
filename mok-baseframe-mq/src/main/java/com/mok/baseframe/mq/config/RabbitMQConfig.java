@@ -1,6 +1,6 @@
 package com.mok.baseframe.mq.config;
 
-import com.mok.baseframe.utils.LogUtils;
+import com.mok.baseframe.common.utils.LogUtils;
 import org.slf4j.Logger;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;

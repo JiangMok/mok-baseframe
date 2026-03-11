@@ -5,7 +5,7 @@ import com.mok.baseframe.common.PageResult;
 import com.mok.baseframe.common.R;
 import com.mok.baseframe.entity.DeliveryOrderEntity;
 import com.mok.baseframe.order.service.DeliveryService;
-import com.mok.baseframe.utils.SecurityUtils;
+import com.mok.baseframe.security.utils.SecurityUtils;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;

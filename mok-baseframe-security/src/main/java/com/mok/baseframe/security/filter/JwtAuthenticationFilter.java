@@ -1,11 +1,8 @@
 package com.mok.baseframe.security.filter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mok.baseframe.constant.ResponseCode;
 import com.mok.baseframe.security.jwt.JwtTokenProvider;
 import com.mok.baseframe.security.jwt.TokenBlacklistService;
-import com.mok.baseframe.utils.LogUtils;
-import com.mok.baseframe.utils.ResponseUtils;
+import com.mok.baseframe.common.utils.LogUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

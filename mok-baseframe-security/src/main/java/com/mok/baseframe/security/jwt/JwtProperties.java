@@ -3,7 +3,7 @@ package com.mok.baseframe.security.jwt;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
-import com.mok.baseframe.utils.LogUtils;
+import com.mok.baseframe.common.utils.LogUtils;
 
 /**
  * @description: JWT配置属性类   创建顺序:1

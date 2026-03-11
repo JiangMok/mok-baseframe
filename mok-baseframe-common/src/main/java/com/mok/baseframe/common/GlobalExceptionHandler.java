@@ -1,7 +1,7 @@
 package com.mok.baseframe.common;
 
-import com.mok.baseframe.constant.ResponseCode;
-import com.mok.baseframe.utils.LogUtils;
+import com.mok.baseframe.common.constant.ResponseCode;
+import com.mok.baseframe.common.utils.LogUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;

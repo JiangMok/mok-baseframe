@@ -1,6 +1,6 @@
 package com.mok.baseframe.security.jwt;
 
-import com.mok.baseframe.utils.LogUtils;
+import com.mok.baseframe.common.utils.LogUtils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -13,9 +13,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Date;
 
-
+/**
+ * @description:  Jwt token 解析器
+ * @author: mok
+ * @date: 2026/3/11 18:58
+**/
 @Component
-
 public class JwtTokenParser {
     private static final Logger log = LogUtils.getLogger(JwtTokenParser.class);
 

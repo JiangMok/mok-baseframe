@@ -1,13 +1,13 @@
 package com.mok.baseframe.captcha.controller;
 
-import com.mok.baseframe.core.annotation.OperationLog;
+import com.mok.baseframe.common.annotation.OperationLog;
 import com.mok.baseframe.common.R;
-import com.mok.baseframe.enums.BusinessType;
+import com.mok.baseframe.common.enums.BusinessType;
 import com.mok.baseframe.captcha.service.CaptchaService;
 import com.mok.baseframe.ratelimiter.annotation.RateLimit;
 import com.mok.baseframe.ratelimiter.enums.RateLimitScope;
 import com.mok.baseframe.ratelimiter.enums.RateLimitType;
-import com.mok.baseframe.utils.LogUtils;
+import com.mok.baseframe.common.utils.LogUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;

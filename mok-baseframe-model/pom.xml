@@ -19,10 +19,5 @@
     </properties>
 
     <dependencies>
-        <!-- 依赖common模块 -->
-        <dependency>
-            <groupId>com.mok</groupId>
-            <artifactId>mok-baseframe-common</artifactId>
-        </dependency>
     </dependencies>
 </project>

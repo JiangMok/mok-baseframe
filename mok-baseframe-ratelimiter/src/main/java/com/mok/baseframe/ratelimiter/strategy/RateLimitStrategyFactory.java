@@ -2,7 +2,7 @@ package com.mok.baseframe.ratelimiter.strategy;
 
 import com.mok.baseframe.ratelimiter.core.RateLimitStrategy;
 import com.mok.baseframe.ratelimiter.enums.RateLimitType;
-import com.mok.baseframe.utils.LogUtils;
+import com.mok.baseframe.common.utils.LogUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;

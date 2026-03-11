@@ -1,6 +1,6 @@
 package com.mok.baseframe.security.jwt;
 
-import com.mok.baseframe.utils.LogUtils;
+import com.mok.baseframe.common.utils.LogUtils;
 import org.slf4j.Logger;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -8,9 +8,12 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-
+/**
+ * @description:Token 黑名单服务
+ * @author: mok
+ * @date: 2026/3/11 18:59
+**/
 @Service
-
 public class TokenBlacklistService {
     private static final Logger log = LogUtils.getLogger(TokenBlacklistService.class);
     private static final String BLACKLIST_PREFIX = "token:blacklist:";
