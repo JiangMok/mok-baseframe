@@ -1,10 +1,11 @@
 package com.mok.baseframe.mq.consumer;
 
-import com.mok.baseframe.base.service.OperationLogService;
+//import com.mok.baseframe.base.service.OperationLogService;
+
 import com.mok.baseframe.dto.OperationLogMessage;
-import com.mok.baseframe.entity.OperationLogEntity;
+import com.mok.baseframe.es.entity.OperationLogEntity;
+import com.mok.baseframe.es.service.ESOperationLogService;
 import com.mok.baseframe.mq.config.RabbitMQConfig;
-import com.mok.baseframe.mq.service.ConsumerService;
 import com.rabbitmq.client.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,13 +28,17 @@ public class OperationLogConsumer {
     private static final Logger logger = LoggerFactory.getLogger(OperationLogConsumer.class);
 
     // 操作日志服务，用于保存日志到数据库
-    private final OperationLogService operationLogService;
-    private final ConsumerService consumerService;
+//    private final OperationLogService operationLogService;
+//    private final ConsumerService consumerService;
+//    public OperationLogConsumer(OperationLogService operationLogService,
+//                                ConsumerService consumerService) {
+//        this.operationLogService = operationLogService;
+//        this.consumerService = consumerService;
+//    }
+    private final ESOperationLogService operationLogService;
 
-    public OperationLogConsumer(OperationLogService operationLogService,
-                                ConsumerService consumerService) {
+    public OperationLogConsumer(ESOperationLogService operationLogService) {
         this.operationLogService = operationLogService;
-        this.consumerService = consumerService;
     }
 
     /**
@@ -49,18 +54,31 @@ public class OperationLogConsumer {
                                    @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag) {
         try {
             logger.info("接收到操作日志消息: {}", message.getTitle());
-
-            // 检查是否已存在（防止重复）
-            if (consumerService.checkOperationLogExistsById(message.getId())) {
-                channel.basicAck(deliveryTag, false);  // 确认已处理的消息
+            //使用 ElasticSearch 保存操作日志 --- start
+            if (operationLogService.findById(message.getId()) != null) {
+                // 确认已处理的消息
+                channel.basicAck(deliveryTag, false);
                 logger.info("操作日志已存在，跳过处理: {}", message.getId());
                 return;
             }
-
-            // 将消息对象转换为实体对象
             OperationLogEntity entity = convertToEntity(message);
-            // 调用Service保存到数据库
-            operationLogService.recordLog(entity);
+            logger.info("接收到操作日志消息实体>>>>>>>>>>>>: {}", entity);
+            operationLogService.save(entity);
+            //使用 ElasticSearch 保存操作日志 --- end
+
+            //使用MySql 保存操作日志 --- start
+            // 检查是否已存在（防止重复）
+//            if (consumerService.checkOperationLogExistsById(message.getId())) {
+//                // 确认已处理的消息
+//                channel.basicAck(deliveryTag, false);
+//                logger.info("操作日志已存在，跳过处理: {}", message.getId());
+//                return;
+//            }
+//            // 将消息对象转换为实体对象
+//            OperationLogEntity entity = convertToEntity(message);
+//            // 调用Service 保存到数据库
+//            operationLogService.recordLog(entity);
+            //使用MySql 保存操作日志 --- end
 
             // ✅ 手动确认消息
             channel.basicAck(deliveryTag, false);
@@ -102,12 +120,12 @@ public class OperationLogConsumer {
         entity.setJsonResult(message.getJsonResult());
         entity.setStatus(message.getStatus());
         entity.setErrorMsg(message.getErrorMsg());
-
+        entity.setCreateTime(LocalDateTime.now());
         // 设置时间字段
         if (message.getOperTime() != null) {
-            entity.setCreateTime(message.getOperTime());
+            entity.setOperTime(message.getOperTime());
         } else {
-            entity.setCreateTime(LocalDateTime.now());
+            entity.setOperTime(LocalDateTime.now());
         }
 
         return entity;

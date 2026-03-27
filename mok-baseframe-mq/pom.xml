@@ -45,5 +45,9 @@
             <groupId>com.mok</groupId>
             <artifactId>mok-baseframe-base</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.mok</groupId>
+            <artifactId>mok-baseframe-es</artifactId>
+        </dependency>
     </dependencies>
 </project>

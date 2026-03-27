@@ -23,7 +23,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/operation-log")
-
 @Tag(name = "操作日志", description = "操作日志相关接口")
 public class OperationLogController {
     private static final Logger log = LogUtils.getLogger(OperationLogController.class);

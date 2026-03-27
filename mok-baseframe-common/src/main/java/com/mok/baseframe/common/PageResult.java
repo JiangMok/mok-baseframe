@@ -350,4 +350,22 @@ public class PageResult<T> implements Serializable {
                 ", dataSize=" + (data != null ? data.size() : 0) +
                 '}';
     }
+
+    /**
+     * 从 Spring Data Page 创建 PageResult
+     * @param page Spring Data Page 对象
+     * @param <T> 数据类型
+     * @return PageResult
+     */
+    public static <T> PageResult<T> fromSpringDataPage(org.springframework.data.domain.Page<T> page) {
+        PageResult<T> result = new PageResult<>();
+        result.setData(page.getContent());
+        result.setTotal(page.getTotalElements());
+        result.setPageSize(page.getSize());
+        // Spring Data 页码从0开始，转为1
+        result.setPageNum(page.getNumber() + 1);
+        // 自动计算 totalPages、hasNext、hasPrevious
+        result.calculate();
+        return result;
+    }
 }

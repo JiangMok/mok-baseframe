@@ -6,6 +6,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.util.StringUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.Serial;
@@ -293,6 +297,26 @@ public class PageParam implements Serializable  {
     public <T> Page<T> toPageWithoutOrder() {
         validate();
         return new Page<>(pageNum, pageSize);
+    }
+
+    /**
+     * 转换为 Spring Data 的 Pageable 对象
+     * @return Pageable
+     */
+    @JsonIgnore
+    public Pageable toPageable() {
+        // 处理排序
+        Sort sort = null;
+        if (StringUtils.hasText(orderBy)) {
+            // 默认排序：createTime 降序
+            String sortField = StringUtils.hasText(orderBy) ? orderBy : "createTime";
+            Sort.Direction direction = "asc".equalsIgnoreCase(order) ? Sort.Direction.ASC : Sort.Direction.DESC;
+            sort = Sort.by(direction, sortField);
+        }
+        // 页码从0开始
+        return sort != null
+                ? PageRequest.of(pageNum - 1, pageSize, sort)
+                : PageRequest.of(pageNum - 1, pageSize);
     }
 
     @JsonIgnore
