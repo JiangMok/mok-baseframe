@@ -12,10 +12,16 @@ import org.springframework.data.elasticsearch.client.elc.NativeQuery;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.query.ByQueryResponse;
+import org.springframework.data.elasticsearch.core.query.DeleteQuery;
+import org.springframework.data.elasticsearch.core.query.StringQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
 /**
  * ElasticSearch 操作日志service实现类
@@ -42,7 +48,25 @@ public class ESOperationLogServiceImpl implements ESOperationLogService {
         // BoolQuery 是ElasticSearch 的布尔查询,用于将多个子查询组合成复杂条件查询
         BoolQuery.Builder boolBuilder = new BoolQuery.Builder();
 
-        //2.关键词模糊查询
+        //2.1添加固定过滤条件(status,businessType)
+        Map<String, Object> params = param.getParams();
+        if (params != null) {
+            // 处理 status（整数精确匹配）
+            Object statusObj = params.get("status");
+            if (statusObj != null && StringUtils.hasText(statusObj.toString())) {
+                // status 是整数，使用 term 查询
+                int status = Integer.parseInt(statusObj.toString());
+                boolBuilder.filter(q -> q.term(t -> t.field("status").value(status)));
+            }
+            // 处理 businessType（字符串精确匹配）
+            Object businessTypeObj = params.get("businessType");
+            if (businessTypeObj != null && StringUtils.hasText(businessTypeObj.toString())) {
+                String businessType = businessTypeObj.toString();
+                boolBuilder.filter(q -> q.term(t -> t.field("businessType").value(businessType)));
+            }
+        }
+
+        //2.2关键词模糊查询
         if (StringUtils.hasText(param.getKeyword())) {
             //提取关键词
             String keyword = param.getKeyword();
@@ -107,5 +131,34 @@ public class ESOperationLogServiceImpl implements ESOperationLogService {
     @Override
     public OperationLogEntity findById(String id) {
         return operationLogRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public int cleanLogsBefore(LocalDateTime dateTime) {
+        if (dateTime == null) {
+            return 0;
+        }
+
+        String formattedDateTime = dateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        String jsonQuery = "{\"range\":{\"operTime\":{\"lt\":\"" + formattedDateTime + "\"}}}";
+
+        // 构建查询条件
+        StringQuery stringQuery = new StringQuery(jsonQuery);
+
+        // 关键：使用 DeleteQuery 包装，而不是直接传 StringQuery
+        DeleteQuery deleteQuery = DeleteQuery.builder(stringQuery)
+                // 立即刷新
+                .withRefresh(true)
+                .build();
+
+        // 执行删除，返回 ByQueryResponse
+        ByQueryResponse response = elasticsearchOperations.delete(deleteQuery, OperationLogEntity.class);
+
+        return (int) response.getDeleted();
+    }
+
+    @Override
+    public void deleteById(String id) {
+        operationLogRepository.deleteById(id);
     }
 }

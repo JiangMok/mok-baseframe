@@ -1,8 +1,13 @@
 package com.mok.baseframe.monitor.service.impl;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch.cluster.HealthResponse;
 import com.mok.baseframe.common.utils.LogUtils;
 import com.mok.baseframe.monitor.service.HealthCheckService;
 import org.slf4j.Logger;
+import org.springframework.amqp.AmqpException;
+import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -28,13 +33,19 @@ public class HealthCheckServiceImpl implements HealthCheckService {
     private final DataSource dataSource;
     private final JdbcTemplate jdbcTemplate;
     private final RedisConnectionFactory redisConnectionFactory;
+    private final ElasticsearchClient elasticsearchClient;
+    private final RabbitTemplate rabbitTemplate;
 
     public HealthCheckServiceImpl(DataSource dataSource,
                                   JdbcTemplate jdbcTemplate,
-                                  RedisConnectionFactory redisConnectionFactory) {
+                                  RedisConnectionFactory redisConnectionFactory,
+                                  ElasticsearchClient elasticsearchClient,
+                                  RabbitTemplate rabbitTemplate) {
         this.dataSource = dataSource;
         this.jdbcTemplate = jdbcTemplate;
         this.redisConnectionFactory = redisConnectionFactory;
+        this.elasticsearchClient = elasticsearchClient;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     /**
@@ -57,11 +68,23 @@ public class HealthCheckServiceImpl implements HealthCheckService {
         HealthCheckResult memoryResult = checkMemory();
         healthInfo.put("memory", memoryResult);
 
+        // 检查ES数据库
+        HealthCheckResult elasticsearchResult = checkElasticsearch();
+        healthInfo.put("elasticsearch", elasticsearchResult);
+
+        // 检查rabbitmq
+        HealthCheckResult rabbitmqResult = checkRabbitMQ();
+        healthInfo.put("rabbitmq", rabbitmqResult);
+
         // 计算总体状态
-        boolean allHealthy = dbResult.isUp() && redisResult.isUp() && memoryResult.isUp();
+        boolean allHealthy = dbResult.isUp()
+                && redisResult.isUp()
+                && memoryResult.isUp()
+                && elasticsearchResult.isUp()
+                && rabbitmqResult.isUp();
         healthInfo.put("status", allHealthy ? "UP" : "DOWN");
         healthInfo.put("application", "MOK-BaseFrame");
-        healthInfo.put("version", "1.0.0");
+        healthInfo.put("version", "1.1.0");
 
         return healthInfo;
     }
@@ -171,6 +194,93 @@ public class HealthCheckServiceImpl implements HealthCheckService {
                 .status(status)
                 .details(details)
                 .build();
+    }
+
+
+    /**
+     * 检查 Elasticsearch 连接
+     */
+    private HealthCheckResult checkElasticsearch() {
+        long startTime = System.currentTimeMillis();
+        try {
+            HealthResponse health = elasticsearchClient.cluster().health();
+            long responseTime = System.currentTimeMillis() - startTime;
+
+            Map<String, Object> details = new HashMap<>();
+            details.put("clusterName", health.clusterName());
+            details.put("status", health.status().jsonValue()); // green/yellow/red
+            details.put("responseTime", responseTime + "ms");
+            details.put("nodeCount", health.numberOfNodes());
+            details.put("dataNodeCount", health.numberOfDataNodes());
+
+            String healthStatus;
+            if ("green".equals(health.status().jsonValue())) {
+                healthStatus = "UP";
+            } else if ("yellow".equals(health.status().jsonValue())) {
+                healthStatus = "WARNING";
+            } else {
+                healthStatus = "DOWN";
+            }
+
+            return HealthCheckResult.builder()
+                    .status(healthStatus)
+                    .details(details)
+                    .build();
+
+        } catch (Exception e) {
+            log.error("Elasticsearch 健康检查失败", e);
+            return HealthCheckResult.builder()
+                    .status("DOWN")
+                    .details(Map.of("error", e.getMessage()))
+                    .build();
+        }
+    }
+
+    /**
+     * 检查 RabbitMQ 连接
+     */
+    private HealthCheckResult checkRabbitMQ() {
+        long startTime = System.currentTimeMillis();
+        try {
+            // 方式1：通过 execute 发送一个空操作，如果连接正常则不会抛异常
+            rabbitTemplate.execute(channel -> {
+                // 什么都不做，仅用于测试连接是否可用
+                return true;
+            });
+            long responseTime = System.currentTimeMillis() - startTime;
+
+            // 获取连接工厂的基本信息（CachingConnectionFactory）
+            CachingConnectionFactory connectionFactory =
+                    (CachingConnectionFactory) rabbitTemplate.getConnectionFactory();
+            String host = connectionFactory.getHost();
+            int port = connectionFactory.getPort();
+            String virtualHost = connectionFactory.getVirtualHost();
+
+            Map<String, Object> details = new HashMap<>();
+            details.put("host", host);
+            details.put("port", port);
+            details.put("virtualHost", virtualHost);
+            details.put("responseTime", responseTime + "ms");
+            details.put("connectionStatus", "Connected");
+
+            return HealthCheckResult.builder()
+                    .status("UP")
+                    .details(details)
+                    .build();
+
+        } catch (AmqpException e) {
+            log.error("RabbitMQ 健康检查失败", e);
+            return HealthCheckResult.builder()
+                    .status("DOWN")
+                    .details(Map.of("error", e.getMessage()))
+                    .build();
+        } catch (Exception e) {
+            log.error("RabbitMQ 健康检查异常", e);
+            return HealthCheckResult.builder()
+                    .status("DOWN")
+                    .details(Map.of("error", e.getMessage()))
+                    .build();
+        }
     }
 
     /**

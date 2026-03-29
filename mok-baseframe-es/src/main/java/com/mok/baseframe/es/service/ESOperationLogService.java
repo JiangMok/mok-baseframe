@@ -4,6 +4,8 @@ import com.mok.baseframe.common.PageParam;
 import com.mok.baseframe.common.PageResult;
 import com.mok.baseframe.es.entity.OperationLogEntity;
 
+import java.time.LocalDateTime;
+
 /**
  * @description: ElasticSearch 操作日志service
  * @author: mok
@@ -37,4 +39,22 @@ public interface ESOperationLogService {
      * @return: com.mok.baseframe.es.entity.OperationLogEntity
      **/
     OperationLogEntity findById(String id);
+
+    /**
+     * @description: 删除指定日期前的日志 
+     * @author: mok
+     * @date: 2026/3/29 13:58
+     * @param: [dateTime]
+     * @return: int
+    **/
+    int cleanLogsBefore(LocalDateTime dateTime);
+    
+    /**
+     * @description: 根据ID删除
+     * @author: mok
+     * @date: 2026/3/29 15:21
+     * @param: [id]
+     * @return: void
+    **/
+    void deleteById(String id);
 }

@@ -6,14 +6,14 @@ spring:
   # 数据源配置 - 开发环境数据库
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver  # MySQL驱动类
-    url: jdbc:mysql://192.168.77.141:3306/security_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai  # 数据库连接URL
+    url: jdbc:mysql://192.168.77.152:3306/security_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai  # 数据库连接URL
     username: root  # 数据库用户名
     password: 123456  # 数据库密码
 
   # Redis配置 - 开发环境缓存
   data:
     redis:
-      host: 192.168.77.141  # Redis服务器地址
+      host: 192.168.77.152  # Redis服务器地址
       port: 6379            # Redis端口号
       password: 123456      # Redis访问密码
       database: 1           # Redis数据库索引（0-15）
@@ -26,7 +26,7 @@ spring:
           min-idle: 0       # 最小空闲连接数
   rabbitmq:
     # 基础连接配置
-    host: 192.168.77.141             # RabbitMQ服务器地址（开发环境使用本地）
+    host: 192.168.77.152             # RabbitMQ服务器地址（开发环境使用本地）
     port: 5672                 # RabbitMQ端口（默认5672）
     username: admin            # 用户名（默认guest）
     password: 123456            # 密码（默认guest）
@@ -69,7 +69,7 @@ spring:
           max-interval: 10000          # 最大重试间隔（毫秒）
           multiplier: 2.0              # 重试间隔乘数
   elasticsearch:
-    uris: http://192.168.77.141:9200
+    uris: http://192.168.77.152:9200
     username: elastic
     password: 123456
 

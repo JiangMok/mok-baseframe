@@ -79,7 +79,7 @@ public class SystemController {
     public R<Map<String, Object>> getSystemInfo() {
         Map<String, Object> info = Map.of(
                 "appName", "MOK-BaseFrame",
-                "version", "1.0.0",
+                "version", "1.1.0",
                 "javaVersion", System.getProperty("java.version"),
                 "osName", System.getProperty("os.name"),
                 "osArch", System.getProperty("os.arch"),
