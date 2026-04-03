@@ -108,6 +108,7 @@ public class OrderController {
      * 查询订单详情
      */
     @Operation(summary = "订单详情")
+    @OperationLog(title = "订单详情", businessType = BusinessType.QUERY)
     @GetMapping("/detail/{orderNo}")
     public R<OrderInfoEntity> getOrderDetail(@PathVariable String orderNo) {
         OrderInfoEntity order = orderService.getOrderByNo(orderNo);
@@ -118,6 +119,7 @@ public class OrderController {
      * 分页查询订单列表
      */
     @Operation(summary = "分页查询订单")
+    @OperationLog(title = "分页查询订单", businessType = BusinessType.QUERY)
     @PostMapping("/list")
     public R<PageResult<OrderInfoEntity>> getOrderList(@RequestBody @Valid PageParam param) {
         String userId = securityUtils.getCurrentUserId();

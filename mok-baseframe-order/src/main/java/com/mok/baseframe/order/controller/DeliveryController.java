@@ -3,6 +3,8 @@ package com.mok.baseframe.order.controller;
 import com.mok.baseframe.common.PageParam;
 import com.mok.baseframe.common.PageResult;
 import com.mok.baseframe.common.R;
+import com.mok.baseframe.common.annotation.OperationLog;
+import com.mok.baseframe.common.enums.BusinessType;
 import com.mok.baseframe.entity.DeliveryOrderEntity;
 import com.mok.baseframe.order.service.DeliveryService;
 import com.mok.baseframe.security.utils.SecurityUtils;
@@ -29,6 +31,7 @@ public class DeliveryController {
      * 发货
      */
     @PostMapping("/ship")
+    @OperationLog(title = "发货", businessType = BusinessType.INSERT)
     @PreAuthorize("@permissionChecker.hasPermission('order:delivery:ship')")
     public R<String> shipDelivery(@RequestParam("deliveryId") String deliveryId,
                                   @RequestParam("deliveryCompany") String deliveryCompany,
@@ -45,6 +48,7 @@ public class DeliveryController {
      * 确认收货
      */
     @PostMapping("/receive/{deliveryId}")
+    @OperationLog(title = "确认收货", businessType = BusinessType.INSERT)
     public R<String> receiveDelivery(@PathVariable("deliveryId") String deliveryId) {
         String userId = securityUtils.getCurrentUserId();
         boolean success = deliveryService.receiveDelivery(deliveryId, userId);
@@ -59,6 +63,7 @@ public class DeliveryController {
      * 查询发货单详情
      */
     @GetMapping("/detail/{id}")
+    @OperationLog(title = "查询发货详情", businessType = BusinessType.QUERY)
     public R<DeliveryOrderEntity> getDeliveryDetail(@PathVariable String id) {
         DeliveryOrderEntity delivery = deliveryService.getDeliveryById(id);
         return R.ok("查询成功", delivery);
@@ -68,6 +73,7 @@ public class DeliveryController {
      * 根据订单ID查询发货单
      */
     @GetMapping("/order/{orderId}")
+    @OperationLog(title = "根据订单ID查询发货单", businessType = BusinessType.QUERY)
     public R<DeliveryOrderEntity> getDeliveryByOrderId(@PathVariable String orderId) {
         DeliveryOrderEntity delivery = deliveryService.getDeliveryByOrderId(orderId);
         return R.ok("查询成功", delivery);
@@ -77,6 +83,7 @@ public class DeliveryController {
      * 分页查询发货单列表
      */
     @PostMapping("/list")
+    @OperationLog(title = "分页查询发货单列表", businessType = BusinessType.QUERY)
     public R<PageResult<DeliveryOrderEntity>> getDeliveryList(@RequestBody @Valid PageParam pageParam) {
         String userId = securityUtils.getCurrentUserId();
         PageResult<DeliveryOrderEntity> result = deliveryService.getDeliveryList(

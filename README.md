@@ -66,7 +66,7 @@ mok-baseframe
 - **枚举**：定义业务操作类型等。
 - **工具类**：JSON 脱敏、日志获取、密码生成、响应写入等。
 
-### 4.2 核心功能模块 (core)
+### 4.2 核心功能模块 (core) >>> 已合并到common模块
 
 提供系统核心功能支持：
 - **操作日志 `@OperationLog`**：通过 AOP 拦截请求，收集日志信息，通过 RabbitMQ 异步发送，实现与业务解耦。
@@ -185,7 +185,7 @@ file:
 ### 5.4 启动项目
 运行 Application.java 的 main 方法。访问 Swagger 文档：http://localhost:8080/api/swagger-ui.html
 
-默认管理员账号：admin / 123456（密码需使用 PasswordGenerator 工具类生成后手动更新数据库）。
+默认管理员账号：admin / 123456（密码需使用 package com.mok.baseframe.common.utils.PasswordGenerator 工具类生成后手动更新数据库）。
 
 ## 6. 配置说明汇总
 | 配置前缀 | 说明 | 示例 |
